@@ -1,0 +1,4 @@
+{"subject":"Test Notification from zcli",
+ "content":"This is a test.",
+ "assignees":"ronald.funk@ruv.de",
+ "sendTo":"mail"}

@@ -1,0 +1,6 @@
+HOST_NAME = "192.168.9.39"
+GLOBAL_CSI = "ZOS24.SMPE.GLOBAL.CSI"
+FILES_CACHE_DIR = ".local/zcli/.cache/files"
+DATASET_CACHE_DIR = ".local/zcli/.cache/datasets"
+JOBS_CACHE_DIR = ".local/zcli/.cache/jobs"
+#GLOBAL_CSI = "SMPE.GLOBAL.CSI"
