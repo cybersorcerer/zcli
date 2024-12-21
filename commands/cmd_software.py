@@ -2,10 +2,10 @@ import sys
 import click
 from click_help_colors import HelpColorsGroup, HelpColorsCommand
 
-from tui.software import tui_sms_crit_updates
-from tui.software import tui_sms_fixc_updates
-from tui.software import tui_sms_soft_updates
-from tui.software import tui_sms_list
+from tui.software import critical_updates
+from tui.software import fixcat_updates
+from tui.software import software_updates
+from tui.software import instance_list
 
 from commands.cmd_utils import MutuallyExclusiveOption
 from commands.cmd_defaults import HOST_NAME, GLOBAL_CSI
@@ -239,7 +239,7 @@ def critical_updates(ctx: click.Context, nick_name: str, swi_name: str, uuid: st
         if not tui:
            sys.stdout.write(f'{response.text}\n')
         else:
-           tui_sms_crit_updates.show_tui(response.text)
+           critical_updates.show_tui(response.text)
 
 #------------------------------------------------------------------------------#
 # Define software updates command of the query subgroup of software group      #
@@ -331,7 +331,7 @@ def software_updates(ctx: click.Context, nick_name: str, swi_name: str, uuid: st
         if not tui:
            sys.stdout.write(f'{response.text}\n')
         else:
-           tui_sms_soft_updates.show_tui(response.text)
+           software_updates.show_tui(response.text)
 
 #------------------------------------------------------------------------------#
 # Define fixcatupdates command of the query subgroup of software group         #
@@ -408,7 +408,7 @@ def fixcat_updates(ctx: click.Context, nick_name: str, swi_name: str, uuid: str,
         if not tui:
            sys.stdout.write(f'{response.text}\n')
         else:
-           tui_sms_fixc_updates.show_tui(response.text)
+           fixcat_updates.show_tui(response.text)
 
 #------------------------------------------------------------------------------#
 # Define the instances subgroup of the software group                          #
@@ -521,7 +521,7 @@ def uuid(ctx: click.Context, nick_name: str):
     help='Display response data in a table.'
 )
 @click.pass_context
-def list(ctx: click.Context, pswi: bool = False, tui: bool = False):
+def instance_list(ctx: click.Context, pswi: bool = False, tui: bool = False):
     """
     Obtain a list of software or portable software instances.
 
@@ -550,7 +550,7 @@ def list(ctx: click.Context, pswi: bool = False, tui: bool = False):
         if not tui:
            sys.stdout.write(f'{response.text}\n')
         else:
-           tui_sms_list.show_tui(response.text)
+           instance_list.show_tui(response.text)
 
 #------------------------------------------------------------------------------#
 # Define the add instance subcommand of the instances group                    #

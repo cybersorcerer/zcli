@@ -1,6 +1,5 @@
 import sys
 import requests
-from typing import Tuple
 
 from zosapi import client as d
 
