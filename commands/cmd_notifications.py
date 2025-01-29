@@ -2,15 +2,16 @@ import click
 import sys
 from click_help_colors import HelpColorsGroup, HelpColorsCommand
 from zosapi import notifications as n
-from commands.cmd_defaults import HOST_NAME
-#------------------------------------------------------------------------------#
+
+
+# ------------------------------------------------------------------------------#
 # Define the issues group                                                      #
-#------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------#
 @click.group(
-    name='notifications',
+    name="notifications",
     cls=HelpColorsGroup,
-    help_headers_color='yellow',
-    help_options_color='green',
+    help_headers_color="yellow",
+    help_options_color="green",
 )
 def notifications_cli() -> None:
     """
@@ -23,13 +24,13 @@ def notifications_cli() -> None:
     as the default destination.
     """
     pass
-#------------------------------------------------------------------------------#
+
+
+# ------------------------------------------------------------------------------#
 # Define the notifications list subcommand                                     #
-#------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------#
 @notifications_cli.command(
-    name='list',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
+    name="list", cls=HelpColorsCommand, help_options_color="blue"
 )
 @click.pass_context
 def list(ctx: click.Context):
@@ -42,40 +43,44 @@ def list(ctx: click.Context):
     notification items in the z/OSMF Notifications task. This does not apply
     to the get mail operation in a user's email account.
     """
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    logging = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    logging.debug(f'CMD-NOTIFICATIONS-000D list() entered with:')
-    logging.debug(f'                          Verify: {verify}')
+    logging.debug("CMD-NOTIFICATIONS-000D list() entered with:")
+    logging.debug(f"                          Verify: {verify}")
 
-    client = n.NOTIFICATIONS(HOST_NAME, user, password)
+    client = n.NOTIFICATIONS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
     errors, response = client.get_notifications(verify=verify)
 
-    logging.debug(f'CMD-NOTIFICATIONS-000D list() returned with:')
-    logging.debug(f'                         errors: {errors}')
-    logging.debug(f'                       response: {response}')
+    logging.debug("CMD-NOTIFICATIONS-000D list() returned with:")
+    logging.debug(f"                         errors: {errors}")
+    logging.debug(f"                       response: {response}")
 
     if "rc" in errors:
-        sys.stderr.write(f'{str(errors)}\n')
+        sys.stderr.write(f"{str(errors)}\n")
     else:
-        sys.stdout.write(f'{response.text}\n')
+        sys.stdout.write(f"{response.text}\n")
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define the notifications send subcommand                                     #
-#------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------#
 @notifications_cli.command(
-    name='send',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
+    name="send", cls=HelpColorsCommand, help_options_color="blue"
 )
 @click.option(
-    '--file-name',
-    '-f',
+    "--file-name",
+    "-f",
     required=True,
-    help='The filename with the notification input data.',
-    type=click.STRING
+    help="The filename with the notification input data.",
+    type=click.STRING,
 )
 @click.pass_context
 def send(ctx: click.Context, file_name):
@@ -95,23 +100,28 @@ def send(ctx: click.Context, file_name):
     recipients. If the "attachment" parameter is specified in the input file,
     the attachment will only appear in the recipients' mail.
     """
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    logging = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    logging.debug(f'CMD-NOTIFICATIONS-000D send() entered with:')
-    logging.debug(f'                       File Name: {file_name}')
-    logging.debug(f'                          Verify: {verify}')
+    logging.debug("CMD-NOTIFICATIONS-000D send() entered with:")
+    logging.debug(f"                       File Name: {file_name}")
+    logging.debug(f"                          Verify: {verify}")
 
-    client = n.NOTIFICATIONS(HOST_NAME, user, password)
+    client = n.NOTIFICATIONS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
     errors, response = client.send_notifications(filename=file_name, verify=verify)
 
-    logging.debug(f'CMD-NOTIFICATIONS-000D send() returned with:')
-    logging.debug(f'                         errors: {errors}')
-    logging.debug(f'                       response: {response}')
+    logging.debug("CMD-NOTIFICATIONS-000D send() returned with:")
+    logging.debug(f"                         errors: {errors}")
+    logging.debug(f"                       response: {response}")
 
     if "rc" in errors:
-        sys.stderr.write(f'{str(errors)}\n')
+        sys.stderr.write(f"{str(errors)}\n")
     else:
-        sys.stdout.write(f'{response.text}\n')
+        sys.stdout.write(f"{response.text}\n")

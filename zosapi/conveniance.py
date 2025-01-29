@@ -19,8 +19,8 @@ class Conveniance:
         ddnames: list = [{}]
         for ddname in json.loads(response.text):
             ddnames.append({
-                "ddname": ddname['ddname'], 
-                "id": ddname['id'], 
+                "ddname": ddname['ddname'],
+                "id": ddname['id'],
                 "recfm": ddname['recfm'],
                 "url": ddname['url']
             })

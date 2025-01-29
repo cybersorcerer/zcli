@@ -1,18 +1,17 @@
-
 import sys
 import click
 from click_help_colors import HelpColorsGroup, HelpColorsCommand
 from zosapi import sysvar as s
-from commands.cmd_defaults import HOST_NAME
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define the software group                                                    #
-#------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------#
 @click.group(
-    name='sysvar',
+    name="sysvar",
     cls=HelpColorsGroup,
-    help_headers_color='yellow',
-    help_options_color='green',
+    help_headers_color="yellow",
+    help_options_color="green",
 )
 def sysvar_cli() -> None:
     """
@@ -22,33 +21,31 @@ def sysvar_cli() -> None:
     Module Name.:  commands.cmd_sysvar.py
     Alias........: None
     Author.......: Ronny Funk
-    Function.....: Query z/OS z/OSMF Toplogy Services
+    Function.....: Work with z/OS and z/OSMF variables
 
     Environment: *ix Terminal CLI / Batch Job
     """
     pass
-#------------------------------------------------------------------------------#
+
+
+# ------------------------------------------------------------------------------#
 # Define the tso command subcommand                                            #
-#------------------------------------------------------------------------------#
-@sysvar_cli.command(
-    name='get',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
-)
+# ------------------------------------------------------------------------------#
+@sysvar_cli.command(name="get", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    '--plex-name',
-    '-pn',
+    "--plex-name",
+    "-pn",
     type=click.STRING,
     required=True,
-    default='',
-    help=f'The name of a z/OS sysplex.'
+    default="",
+    help="The name of a z/OS sysplex.",
 )
 @click.option(
-    '--system-name',
-    '-sn',
+    "--system-name",
+    "-sn",
     type=click.STRING,
-    default='',
-    help='The name of a z/OS system.'
+    default="",
+    help="The name of a z/OS system.",
 )
 @click.pass_context
 def get(ctx: click.Context, plex_name: str, system_name: str):
@@ -63,15 +60,26 @@ def get(ctx: click.Context, plex_name: str, system_name: str):
     \b
     """
 
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    logging = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    client = s.SYSVAR(HOST_NAME, user, password)
-    errors, response = client.get_system_variables(sysplex_name=plex_name, system_name=system_name, verify=verify)
+    logging.debug("CMD-SYSVAR-000D list() entered with:")
+    logging.debug(f"                      sysplex name: {plex_name}")
+    logging.debug(f"                       system name: {system_name}")
+
+    client = s.SYSVAR(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
+    errors, response = client.get_system_variables(
+        sysplex_name=plex_name, system_name=system_name, verify=verify
+    )
 
     if errors:
-        sys.stderr.write(f'{str(errors)}\n')
+        sys.stderr.write(f"{str(errors)}\n")
     else:
-        sys.stdout.write(f'{response.text}\n')
+        sys.stdout.write(f"{response.text}\n")

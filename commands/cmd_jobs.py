@@ -1,20 +1,20 @@
-
 import sys
 import click
 from click_help_colors import HelpColorsGroup, HelpColorsCommand
 
 from tui.jobs import tui_jobs_list
-from zosapi import jobs  as j
-from commands.cmd_defaults import HOST_NAME
+from zosapi import jobs as j
 from commands.cmd_utils import MutuallyExclusiveOption
-#------------------------------------------------------------------------------#
+
+
+# ------------------------------------------------------------------------------#
 # Define the issues group                                                      #
-#------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------#
 @click.group(
-    name='jobs',
+    name="jobs",
     cls=HelpColorsGroup,
-    help_headers_color='yellow',
-    help_options_color='green',
+    help_headers_color="yellow",
+    help_options_color="green",
 )
 def jobs_cli() -> None:
     """
@@ -30,59 +30,56 @@ def jobs_cli() -> None:
     """
     pass
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define the jobs list subcommand                                              #
-#------------------------------------------------------------------------------#
-@jobs_cli.command(
-    name='list',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
+# ------------------------------------------------------------------------------#
+@jobs_cli.command(name="list", cls=HelpColorsCommand, help_options_color="blue")
+@click.option(
+    "--owner",
+    "-o",
+    required=False,
+    help="Owner of the jobs to list",
+    default="",
+    type=str,
 )
 @click.option(
-    '--owner',
-    '-o',
+    "--prefix",
+    "-p",
     required=False,
-    help='Owner of the jobs to list',
-    default='',
-    type=str
+    help="Job name prefix; default is *",
+    default="*",
+    type=str,
 )
 @click.option(
-    '--prefix',
-    '-p',
+    "--max-jobs",
+    "-mj",
     required=False,
-    help='Job name prefix; default is *',
-    default='*',
-    type=str
-)
-@click.option(
-    '--max-jobs',
-    '-mj',
-    required=False,
-    help='Maximum number of jobs returned..',
+    help="Maximum number of jobs returned..",
     default=1000,
     show_default=True,
-    type=int
+    type=int,
 )
 @click.option(
-    '--exec-data / --no-exec-data',
+    "--exec-data / --no-exec-data",
     required=False,
     default=True,
     show_default=True,
-    help='Also get execution data. Usually you want this!'
+    help="Also get execution data. Usually you want this!",
 )
 @click.option(
-    '--tui/ --no-tui',
+    "--tui/ --no-tui",
     required=False,
     default=False,
     show_default=True,
-    help='Display response data in a table.'
+    help="Display response data in a table.",
 )
 @click.option(
-    '--active / --all',
+    "--active / --all",
     required=False,
     default=False,
     show_default=True,
-    help='Include only active jobs in list.'
+    help="Include only active jobs in list.",
 )
 @click.pass_context
 def list(
@@ -92,7 +89,7 @@ def list(
     max_jobs: int,
     exec_data: bool,
     tui: bool,
-    active:bool
+    active: bool,
 ):
     """
     Use this command to list jobs by owner, prefix, or job ID.
@@ -107,26 +104,31 @@ def list(
         - acive / all
     \b
     """
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    logging = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    logging.debug(f'CMD-JOBS-000D list() entered with:')
-    logging.debug(f'                       owner: {owner}')
-    logging.debug(f'                      prefix: {prefix}')
-    logging.debug(f'                    max-jobs: {max_jobs}')
-    logging.debug(f'                   exec-data: {exec_data}')
-    logging.debug(f'                 active-only: {active}')
+    logging.debug("CMD-JOBS-000D list() entered with:")
+    logging.debug(f"                       owner: {owner}")
+    logging.debug(f"                      prefix: {prefix}")
+    logging.debug(f"                    max-jobs: {max_jobs}")
+    logging.debug(f"                   exec-data: {exec_data}")
+    logging.debug(f"                 active-only: {active}")
 
-    exec: str = 'N'
+    exec: str = "N"
     if exec_data:
-        exec = 'Y'
+        exec = "Y"
 
-    if owner == '':
-        owner = user
+    if owner == "":
+        owner = ctx.obj["USER"]
 
-    client = j.JOBS(HOST_NAME, user, password)
+    client = j.JOBS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
     errors, response = client.get_job_list(
         owner=owner,
         prefix=prefix,
@@ -135,71 +137,64 @@ def list(
         active_only=active,
         verify=verify,
     )
-    logging.debug(f'CMD-JOBS-000D list() returned with:')
-    logging.debug(f'                errors: {errors}')
-    logging.debug(f'              response: {response}')
-    logging.debug(f'                header: {response.headers}')
+    logging.debug("CMD-JOBS-000D list() returned with:")
+    logging.debug(f"                errors: {errors}")
+    logging.debug(f"              response: {response}")
+    logging.debug(f"                header: {response.headers}")
 
     if errors:
         sys.stderr.write(str(errors))
     else:
         if not tui:
-           sys.stdout.write(f'{response.text}\n')
+            sys.stdout.write(f"{response.text}\n")
         else:
-           tui_jobs_list.show_tui(response.text)
+            tui_jobs_list.show_tui(response.text)
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define the jobs ddnames subcommand                                           #
-#------------------------------------------------------------------------------#
-@jobs_cli.command(
-    name='ddnames',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
-)
+# ------------------------------------------------------------------------------#
+@jobs_cli.command(name="ddnames", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    '--job-id',
-    '-ji',
+    "--job-id",
+    "-ji",
     required=False,
-    help='A Job ID.',
-    default='*',
+    help="A Job ID.",
+    default="*",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    type=str
+    type=str,
 )
 @click.option(
-    '--job-name',
-    '-jn',
+    "--job-name",
+    "-jn",
     required=False,
-    help='The job name.',
-    default='*',
+    help="The job name.",
+    default="*",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    type=str
+    type=str,
 )
 @click.option(
-    '--job-correlator',
-    '-jc',
+    "--job-correlator",
+    "-jc",
     required=False,
-    help='The user portion of the job correlator.',
-    default='',
+    help="The user portion of the job correlator.",
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["jobid", "name"],
-    type=str
+    type=str,
 )
 @click.option(
-    '--files / --no-files',
+    "--files / --no-files",
     required=False,
-    help='Get the jobs spool file DD names.',
+    help="Get the jobs spool file DD names.",
     default=False,
-    type=bool
+    type=bool,
 )
 @click.pass_context
 def ddnames(
-    ctx: click.Context,
-    job_id: str,
-    job_name: str,
-    job_correlator: str,
-    files: bool
+    ctx: click.Context, job_id: str, job_name: str, job_correlator: str, files: bool
 ):
     """
     Use this command to retrieve the spool file DD names.
@@ -220,90 +215,85 @@ def ddnames(
     "job-correlator" property of the list subcommand in a returned JSON job document.
     \b
     """
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    logging = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    logging.debug(f'CMD-JOBS-000D job list entered with:')
-    logging.debug(f'                       name:  {job_name}')
-    logging.debug(f'                       jobid: {job_id}')
-    logging.debug(f'              job-correlator: {job_correlator}')
-    logging.debug(f'                       files: {files}')
+    logging.debug("CMD-JOBS-000D job list entered with:")
+    logging.debug(f"                       name:  {job_name}")
+    logging.debug(f"                       jobid: {job_id}")
+    logging.debug(f"              job-correlator: {job_correlator}")
+    logging.debug(f"                       files: {files}")
 
-    client = j.JOBS(HOST_NAME, user, password)
-    if job_correlator == '':
+    client = j.JOBS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
+    if job_correlator == "":
         errors, response = client.get_files_by_jobname_jobid(
-            jobname=job_name.upper(),
-            jobid=job_id.upper(),
-            verify=verify
+            jobname=job_name.upper(), jobid=job_id.upper(), verify=verify
         )
     else:
         errors, response = client.get_files_by_job_correlator(
-            correlator=job_correlator.upper(),
-            verify=verify
+            correlator=job_correlator.upper(), verify=verify
         )
-    logging.debug(f'CMD-JOBS-000D Job list returned with:')
-    logging.debug(f'                errors: {errors}')
-    logging.debug(f'              response: {response}')
+    logging.debug("CMD-JOBS-000D Job list returned with:")
+    logging.debug(f"                errors: {errors}")
+    logging.debug(f"              response: {response}")
 
     if errors:
-        sys.stderr.write(f'{str(errors)}\n')
+        sys.stderr.write(f"{str(errors)}\n")
     else:
-        sys.stdout.write(f'{response.text}\n')
+        sys.stdout.write(f"{response.text}\n")
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define the jobs files subcommand                                             #
-#------------------------------------------------------------------------------#
-@jobs_cli.command(
-    name='files',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
-)
+# ------------------------------------------------------------------------------#
+@jobs_cli.command(name="files", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    '--job-id',
-    '-ji',
+    "--job-id",
+    "-ji",
     required=False,
-    help='A Job ID.',
-    default='*',
+    help="A Job ID.",
+    default="*",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    type=str
+    type=str,
 )
 @click.option(
-    '--job-name',
-    '-jn',
+    "--job-name",
+    "-jn",
     required=False,
-    help='The job name.',
-    default='*',
+    help="The job name.",
+    default="*",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    type=str
+    type=str,
 )
 @click.option(
-    '--job-correlator',
-    '-jc',
+    "--job-correlator",
+    "-jc",
     required=False,
-    help='The user portion of the job correlator.',
-    default='',
+    help="The user portion of the job correlator.",
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["jobid", "name"],
-    type=str
+    type=str,
 )
 @click.option(
-    '--file-id',
-    '-fi',
+    "--file-id",
+    "-fi",
     required=True,
-    help='The id of the spool file to retrieveq.',
-    type=str
+    help="The id of the spool file to retrieveq.",
+    type=str,
 )
 @click.pass_context
 def files(
-    ctx: click.Context,
-    job_id: str,
-    job_name: str,
-    job_correlator: str,
-    file_id: str
+    ctx: click.Context, job_id: str, job_name: str, job_correlator: str, file_id: str
 ):
     """
     Use this command to retrieve a spool file.
@@ -327,79 +317,76 @@ def files(
     and the user portion (up to 32 bytes).
     \b
     """
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    logging = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    logging.debug(f'CMD-JOBS-000D files() entered with:')
-    logging.debug(f'                    Job Name: {job_name}')
-    logging.debug(f'                      Job ID: {job_id}')
-    logging.debug(f'              Job Correlator: {job_correlator}')
-    logging.debug(f'                     File ID: {file_id}')
+    logging.debug("CMD-JOBS-000D files() entered with:")
+    logging.debug(f"                    Job Name: {job_name}")
+    logging.debug(f"                      Job ID: {job_id}")
+    logging.debug(f"              Job Correlator: {job_correlator}")
+    logging.debug(f"                     File ID: {file_id}")
 
-    client = j.JOBS(HOST_NAME, user, password)
+    client = j.JOBS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
     errors, response = client.get_job_file_by_id(
         fileid=file_id,
         jobname=job_name.upper(),
         jobid=job_id.upper(),
         correlator=job_correlator,
-        verify=verify
+        verify=verify,
     )
-    logging.debug(f'CMD-JOBS-000D files() returned with:')
-    logging.debug(f'                errors: {errors}')
-    logging.debug(f'              response: {response}')
+    logging.debug("CMD-JOBS-000D files() returned with:")
+    logging.debug(f"                errors: {errors}")
+    logging.debug(f"              response: {response}")
 
     if errors:
-        sys.stderr.write(f'{str(errors)}\n')
+        sys.stderr.write(f"{str(errors)}\n")
     else:
-        sys.stdout.write(f'{response.text}\n')
+        sys.stdout.write(f"{response.text}\n")
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define the jobs jcl subcommand                                               #
-#------------------------------------------------------------------------------#
-@jobs_cli.command(
-    name='jcl',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
-)
+# ------------------------------------------------------------------------------#
+@jobs_cli.command(name="jcl", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    '--job-id',
-    '-ji',
+    "--job-id",
+    "-ji",
     required=False,
-    help='A Job ID.',
-    default='',
+    help="A Job ID.",
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    type=str
+    type=str,
 )
 @click.option(
-    '--job-name',
-    '-jn',
+    "--job-name",
+    "-jn",
     required=False,
-    help='The job name.',
-    default='',
+    help="The job name.",
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    type=str
+    type=str,
 )
 @click.option(
-    '--job-correlator',
-    '-jc',
+    "--job-correlator",
+    "-jc",
     required=False,
-    help='The user portion of the job correlator.',
-    default='',
+    help="The user portion of the job correlator.",
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["jobid", "name"],
-    type=str
+    type=str,
 )
 @click.pass_context
-def jcl(
-    ctx: click.Context,
-    job_id: str,
-    job_name: str,
-    job_correlator: str
-):
+def jcl(ctx: click.Context, job_id: str, job_name: str, job_correlator: str):
     """
     Use this command to retrieve the jobs JCL from JES spool.
 
@@ -420,54 +407,56 @@ def jcl(
     and the user portion (up to 32 bytes).
     \b
     """
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    logging = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    logging.debug(f'CMD-JOBS-000D jcl() entered with:')
-    logging.debug(f'                    Job Name: {job_name}')
-    logging.debug(f'                      Job ID: {job_id}')
-    logging.debug(f'              Job Correlator: {job_correlator}')
+    logging.debug("CMD-JOBS-000D jcl() entered with:")
+    logging.debug(f"                    Job Name: {job_name}")
+    logging.debug(f"                      Job ID: {job_id}")
+    logging.debug(f"              Job Correlator: {job_correlator}")
 
-    client = j.JOBS(HOST_NAME, user, password)
+    client = j.JOBS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
     errors, response = client.get_job_jcl(
         jobname=job_name.upper(),
         jobid=job_id.upper(),
         correlator=job_correlator,
-        verify=verify
+        verify=verify,
     )
-    logging.debug(f'CMD-JOBS-000D jcl() returned with:')
-    logging.debug(f'                errors: {errors}')
-    logging.debug(f'              response: {response}')
+    logging.debug("CMD-JOBS-000D jcl() returned with:")
+    logging.debug(f"                errors: {errors}")
+    logging.debug(f"              response: {response}")
 
     if errors:
-        sys.stderr.write(f'{str(errors)}\n')
+        sys.stderr.write(f"{str(errors)}\n")
     else:
-        sys.stdout.write(f'{response.text}\n')
+        sys.stdout.write(f"{response.text}\n")
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define the jobs submit subcommand                                            #
-#------------------------------------------------------------------------------#
-@jobs_cli.command(
-    name='submit',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
-)
+# ------------------------------------------------------------------------------#
+@jobs_cli.command(name="submit", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    '--file-name',
-    '-fn',
+    "--file-name",
+    "-fn",
     required=True,
-    help='Full file name containing z/OS Job JCL.',
-    type=str
+    help="Full file name containing z/OS Job JCL.",
+    type=str,
 )
 @click.option(
-    '--secondary-jes',
-    '-sn',
+    "--secondary-jes",
+    "-sn",
     required=False,
-    default='',
-    help='Secondary JES subsystem name.',
-    type=str
+    default="",
+    help="Secondary JES subsystem name.",
+    type=str,
 )
 @click.pass_context
 def submit(
@@ -487,83 +476,87 @@ def submit(
     to the request.
     \b
     """
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    logging = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    logging.debug(f'CMD-JOBS-000D job submit entered with:')
-    logging.debug(f'                   file_name: {file_name}')
-    logging.debug(f'               secondary_jes: {secondary_jes}')
+    logging.debug("CMD-JOBS-000D job submit entered with:")
+    logging.debug(f"                   file_name: {file_name}")
+    logging.debug(f"               secondary_jes: {secondary_jes}")
 
-    client = j.JOBS(HOST_NAME, user, password)
+    client = j.JOBS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
 
-    errors, response = client.submit_job(file_name=file_name, jes_name=secondary_jes, verify=verify)
+    errors, response = client.submit_job(
+        file_name=file_name, jes_name=secondary_jes, verify=verify
+    )
 
-    logging.debug(f'CMD-JOBS-000D Job submit returned with:')
-    logging.debug(f'                errors: {errors}')
-    logging.debug(f'              response: {response}')
+    logging.debug("CMD-JOBS-000D Job submit returned with:")
+    logging.debug(f"                errors: {errors}")
+    logging.debug(f"              response: {response}")
 
     if errors:
-        sys.stderr.write(f'{str(errors)}\n')
+        sys.stderr.write(f"{str(errors)}\n")
     else:
-        sys.stdout.write(f'{response.text}\n')
+        sys.stdout.write(f"{response.text}\n")
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define the jobs hold subcommand                                              #
-#------------------------------------------------------------------------------#
-@jobs_cli.command(
-    name='hold',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
-)
+# ------------------------------------------------------------------------------#
+@jobs_cli.command(name="hold", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    '--job-name',
-    '-jn',
+    "--job-name",
+    "-jn",
     required=False,
-    help='The job name.',
+    help="The job name.",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    type=str
+    type=str,
 )
 @click.option(
-    '--job-id',
-    '-ji',
+    "--job-id",
+    "-ji",
     required=False,
-    help='A Job ID corresponding to job name.',
+    help="A Job ID corresponding to job name.",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    default='',
+    default="",
     show_default=True,
-    type=str
+    type=str,
 )
 @click.option(
-    '--job-correlator',
-    '-jc',
+    "--job-correlator",
+    "-jc",
     required=False,
-    help='The user portion of the job correlator.',
-    default='',
+    help="The user portion of the job correlator.",
+    default="",
     show_default=True,
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["jobid", "name"],
-    type=str
+    type=str,
 )
 @click.option(
-    '--secondary-jes',
-    '-sn',
+    "--secondary-jes",
+    "-sn",
     required=False,
-    default='',
+    default="",
     show_default=True,
-    help='Secondary JES subsystem name.',
-    type=str
+    help="Secondary JES subsystem name.",
+    type=str,
 )
 @click.pass_context
 def hold(
     ctx: click.Context,
-    job_name: str = '',
-    job_id: str = '',
-    job_correlator: str = '',
-    secondary_jes: str = ''
+    job_name: str = "",
+    job_id: str = "",
+    job_correlator: str = "",
+    secondary_jes: str = "",
 ):
     """
     Use this command to hold a job.
@@ -581,92 +574,92 @@ def hold(
     to the request.
     \b
     """
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    logging = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    logging.debug(f'CMD-JOBS-000D hold() entered with:')
-    logging.debug(f'                       Job Name: {job_name}')
-    logging.debug(f'                         Job ID: {job_id}')
-    logging.debug(f'                     Correlator: {job_correlator}')
-    logging.debug(f'                  secondary_jes: {secondary_jes}')
+    logging.debug("CMD-JOBS-000D hold() entered with:")
+    logging.debug(f"                       Job Name: {job_name}")
+    logging.debug(f"                         Job ID: {job_id}")
+    logging.debug(f"                     Correlator: {job_correlator}")
+    logging.debug(f"                  secondary_jes: {secondary_jes}")
 
-    client = j.JOBS(HOST_NAME, user, password)
-    errors, response = client.hold_job(jobname=job_name, jobid=job_id, correlator=job_correlator, verify=verify)
+    client = j.JOBS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
+    errors, response = client.hold_job(
+        jobname=job_name, jobid=job_id, correlator=job_correlator, verify=verify
+    )
 
-    logging.debug(f'CMD-JOBS-000D hold() returned with:')
-    logging.debug(f'                errors: {errors}')
-    logging.debug(f'              response: {response}')
+    logging.debug("CMD-JOBS-000D hold() returned with:")
+    logging.debug(f"                errors: {errors}")
+    logging.debug(f"              response: {response}")
 
     if errors:
-        sys.stderr.write(f'{str(errors)}\n')
+        sys.stderr.write(f"{str(errors)}\n")
     else:
-        sys.stdout.write(f'{response.text}\n')
+        sys.stdout.write(f"{response.text}\n")
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define the jobs change class subcommand                                      #
-#------------------------------------------------------------------------------#
-@jobs_cli.command(
-    name='change-class',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
-)
+# ------------------------------------------------------------------------------#
+@jobs_cli.command(name="change-class", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    '--job-name',
-    '-jn',
+    "--job-name",
+    "-jn",
     required=False,
-    help='The job name.',
+    help="The job name.",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    type=str
+    type=str,
 )
 @click.option(
-    '--job-id',
-    '-ji',
+    "--job-id",
+    "-ji",
     required=False,
-    help='A Job ID corresponding to job name.',
+    help="A Job ID corresponding to job name.",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    default='',
+    default="",
     show_default=True,
-    type=str
+    type=str,
 )
 @click.option(
-    '--job-correlator',
-    '-jc',
+    "--job-correlator",
+    "-jc",
     required=False,
-    help='The user portion of the job correlator.',
-    default='',
+    help="The user portion of the job correlator.",
+    default="",
     show_default=True,
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["jobid", "name"],
-    type=str
+    type=str,
 )
 @click.option(
-    '--new-class',
-    '-nc',
-    required=True,
-    help='The new JES Jobclass to use.',
-    type=str
+    "--new-class", "-nc", required=True, help="The new JES Jobclass to use.", type=str
 )
 @click.option(
-    '--secondary-jes',
-    '-sn',
+    "--secondary-jes",
+    "-sn",
     required=False,
-    default='',
+    default="",
     show_default=True,
-    help='Secondary JES subsystem name.',
-    type=str
+    help="Secondary JES subsystem name.",
+    type=str,
 )
 @click.pass_context
 def jobclass(
     ctx: click.Context,
-    job_name: str = '',
-    job_id: str = '',
-    job_correlator: str = '',
-    newclass: str = '',
-    secondary_jes: str = ''
+    job_name: str = "",
+    job_id: str = "",
+    job_correlator: str = "",
+    newclass: str = "",
+    secondary_jes: str = "",
 ):
     """
     Use this command to change the class of a job on z/OS.
@@ -684,85 +677,93 @@ def jobclass(
     to the request.
     \b
     """
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    logging = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    logging.debug(f'CMD-JOBS-000D jobclass() entered with:')
-    logging.debug(f'                       Job Name: {job_name}')
-    logging.debug(f'                         Job ID: {job_id}')
-    logging.debug(f'                     Correlator: {job_correlator}')
-    logging.debug(f'                  New Job Class: {newclass}')
-    logging.debug(f'                  secondary_jes: {secondary_jes}')
+    logging.debug("CMD-JOBS-000D jobclass() entered with:")
+    logging.debug(f"                       Job Name: {job_name}")
+    logging.debug(f"                         Job ID: {job_id}")
+    logging.debug(f"                     Correlator: {job_correlator}")
+    logging.debug(f"                  New Job Class: {newclass}")
+    logging.debug(f"                  secondary_jes: {secondary_jes}")
 
-    client = j.JOBS(HOST_NAME, user, password)
-    errors, response = client.change_job_class(jobname=job_name, jobid=job_id, correlator=job_correlator, jobclass=newclass, verify=verify)
+    client = j.JOBS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
+    errors, response = client.change_job_class(
+        jobname=job_name,
+        jobid=job_id,
+        correlator=job_correlator,
+        jobclass=newclass,
+        verify=verify,
+    )
 
-    logging.debug(f'CMD-JOBS-000D jobclass() returned with:')
-    logging.debug(f'                errors: {errors}')
-    logging.debug(f'              response: {response}')
+    logging.debug("CMD-JOBS-000D jobclass() returned with:")
+    logging.debug(f"                errors: {errors}")
+    logging.debug(f"              response: {response}")
 
     if errors:
-        sys.stderr.write(f'{str(errors)}\n')
+        sys.stderr.write(f"{str(errors)}\n")
     else:
-        sys.stdout.write(f'{response.text}\n')
+        sys.stdout.write(f"{response.text}\n")
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define the jobs release subcommand                                           #
-#------------------------------------------------------------------------------#
-@jobs_cli.command(
-    name='release',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
-)
+# ------------------------------------------------------------------------------#
+@jobs_cli.command(name="release", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    '--job-name',
-    '-jn',
+    "--job-name",
+    "-jn",
     required=False,
-    help='The job name.',
+    help="The job name.",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    type=str
+    type=str,
 )
 @click.option(
-    '--job-id',
-    '-ji',
+    "--job-id",
+    "-ji",
     required=False,
-    help='A Job ID corresponding to job name.',
+    help="A Job ID corresponding to job name.",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    default='',
+    default="",
     show_default=True,
-    type=str
+    type=str,
 )
 @click.option(
-    '--job-correlator',
-    '-jc',
+    "--job-correlator",
+    "-jc",
     required=False,
-    help='The user portion of the job correlator.',
-    default='',
+    help="The user portion of the job correlator.",
+    default="",
     show_default=True,
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["jobid", "name"],
-    type=str
+    type=str,
 )
 @click.option(
-    '--secondary-jes',
-    '-sn',
+    "--secondary-jes",
+    "-sn",
     required=False,
-    default='',
+    default="",
     show_default=True,
-    help='Secondary JES subsystem name.',
-    type=str
+    help="Secondary JES subsystem name.",
+    type=str,
 )
 @click.pass_context
 def release(
     ctx: click.Context,
-    job_name: str = '',
-    job_id: str = '',
-    job_correlator: str = '',
-    secondary_jes: str = ''
+    job_name: str = "",
+    job_id: str = "",
+    job_correlator: str = "",
+    secondary_jes: str = "",
 ):
     """
     Use this command to release a job.
@@ -776,94 +777,97 @@ def release(
     to the request.
     \b
     """
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    logging = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    logging.debug(f'CMD-JOBS-000D release() entered with:')
-    logging.debug(f'                       Job Name: {job_name}')
-    logging.debug(f'                         Job ID: {job_id}')
-    logging.debug(f'                     Correlator: {job_correlator}')
-    logging.debug(f'                  secondary_jes: {secondary_jes}')
+    logging.debug("CMD-JOBS-000D release() entered with:")
+    logging.debug(f"                       Job Name: {job_name}")
+    logging.debug(f"                         Job ID: {job_id}")
+    logging.debug(f"                     Correlator: {job_correlator}")
+    logging.debug(f"                  secondary_jes: {secondary_jes}")
 
-    client = j.JOBS(HOST_NAME, user, password)
-    errors, response = client.release_job(jobname=job_name, jobid=job_id, correlator=job_correlator, verify=verify)
+    client = j.JOBS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
+    errors, response = client.release_job(
+        jobname=job_name, jobid=job_id, correlator=job_correlator, verify=verify
+    )
 
-    logging.debug(f'CMD-JOBS-000D release() returned with:')
-    logging.debug(f'                errors: {errors}')
-    logging.debug(f'              response: {response}')
+    logging.debug("CMD-JOBS-000D release() returned with:")
+    logging.debug(f"                errors: {errors}")
+    logging.debug(f"              response: {response}")
 
     if errors:
-        sys.stderr.write(f'{str(errors)}\n')
+        sys.stderr.write(f"{str(errors)}\n")
     else:
-        sys.stdout.write(f'{response.text}\n')
+        sys.stdout.write(f"{response.text}\n")
 
 
-#------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------#
 # Define the jobs cancel subcommand                                            #
-#------------------------------------------------------------------------------#
-@jobs_cli.command(
-    name='cancel',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
-)
+# ------------------------------------------------------------------------------#
+@jobs_cli.command(name="cancel", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    '--job-name',
-    '-jn',
+    "--job-name",
+    "-jn",
     required=False,
-    help='The job name.',
+    help="The job name.",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    type=str
+    type=str,
 )
 @click.option(
-    '--job-id',
-    '-ji',
+    "--job-id",
+    "-ji",
     required=False,
-    help='A Job ID corresponding to job name.',
+    help="A Job ID corresponding to job name.",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    default='',
+    default="",
     show_default=True,
-    type=str
+    type=str,
 )
 @click.option(
-    '--job-correlator',
-    '-jc',
+    "--job-correlator",
+    "-jc",
     required=False,
-    help='The user portion of the job correlator.',
-    default='',
+    help="The user portion of the job correlator.",
+    default="",
     show_default=True,
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["jobid", "name"],
-    type=str
+    type=str,
 )
 @click.option(
-    '--secondary-jes',
-    '-sn',
+    "--secondary-jes",
+    "-sn",
     required=False,
-    default='',
+    default="",
     show_default=True,
-    help='Secondary JES subsystem name.',
-    type=str
+    help="Secondary JES subsystem name.",
+    type=str,
 )
 @click.option(
-    '--purge / --no-purge',
+    "--purge / --no-purge",
     required=False,
     default=False,
     show_default=True,
-    help='Purge output of cancelled job.',
-    type=bool
+    help="Purge output of cancelled job.",
+    type=bool,
 )
 @click.pass_context
 def cancel(
     ctx: click.Context,
-    job_name: str = '',
-    job_id: str = '',
-    job_correlator: str = '',
-    secondary_jes: str = '',
-    purge: bool = False
+    job_name: str = "",
+    job_id: str = "",
+    job_correlator: str = "",
+    secondary_jes: str = "",
+    purge: bool = False,
 ):
     """
     Use this command to cancel a job on z/OS.
@@ -883,29 +887,38 @@ def cancel(
     --purge
     \b
     """
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    logging = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    logging.debug(f'CMD-JOBS-000D cancel() entered with:')
-    logging.debug(f'                       Job Name: {job_name}')
-    logging.debug(f'                         Job ID: {job_id}')
-    logging.debug(f'                     Correlator: {job_correlator}')
-    logging.debug(f'                  Secondary Jes: {secondary_jes}')
-    logging.debug(f'                   Purge Output: {purge}')
+    logging.debug("CMD-JOBS-000D cancel() entered with:")
+    logging.debug(f"                       Job Name: {job_name}")
+    logging.debug(f"                         Job ID: {job_id}")
+    logging.debug(f"                     Correlator: {job_correlator}")
+    logging.debug(f"                  Secondary Jes: {secondary_jes}")
+    logging.debug(f"                   Purge Output: {purge}")
 
-    client = j.JOBS(HOST_NAME, user, password)
+    client = j.JOBS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
     if not purge:
-        errors, response = client.cancel_job(jobname=job_name, jobid=job_id, correlator=job_correlator, verify=verify)
+        errors, response = client.cancel_job(
+            jobname=job_name, jobid=job_id, correlator=job_correlator, verify=verify
+        )
     else:
-        errors, response = client.cancel_and_purge_job(jobname=job_name, jobid=job_id, correlator=job_correlator, verify=verify)
+        errors, response = client.cancel_and_purge_job(
+            jobname=job_name, jobid=job_id, correlator=job_correlator, verify=verify
+        )
 
-    logging.debug(f'CMD-JOBS-000D cancel() returned with:')
-    logging.debug(f'                errors: {errors}')
-    logging.debug(f'              response: {response}')
+    logging.debug("CMD-JOBS-000D cancel() returned with:")
+    logging.debug(f"                errors: {errors}")
+    logging.debug(f"              response: {response}")
 
     if errors:
-        sys.stderr.write(f'{str(errors)}\n')
+        sys.stderr.write(f"{str(errors)}\n")
     else:
-        sys.stdout.write(f'{response.text}\n')
+        sys.stdout.write(f"{response.text}\n")

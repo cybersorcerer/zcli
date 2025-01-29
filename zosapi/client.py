@@ -4,6 +4,7 @@ import ssl
 import os
 import logging
 
+
 class CLIENT:
     """
     A class to interact with the z/OSMF server using REST APIs.
@@ -11,11 +12,12 @@ class CLIENT:
 
     def __init__(
         self,
+        protocol: str,
         hostname: str,
         username: str,
         password: str,
-        port: str = "443",
-        cert_path: str = '/usr/lpp/road4z/ssl/cacert.pem'
+        port: str,
+        cert_path: str,
     ):
         """
         Initialize the client with the z/OSMF server details.
@@ -36,23 +38,23 @@ class CLIENT:
 
         verify_path = ssl.get_default_verify_paths()
         log.debug(f"CLIENT-000D Certificate Verification path is {verify_path}")
-        os.environ.setdefault('SSL_CERT_FILE', cert_path)
+        os.environ.setdefault("SSL_CERT_FILE", cert_path)
         log.debug(
-            f"CLIENT-000D Environment Variable SSL_CERT_FILE has been set to {cert_path}")
+            f"CLIENT-000D Environment Variable SSL_CERT_FILE has been set to {cert_path}"
+        )
 
         headers = {
             "X-CSRF-ZOSMF-HEADER": "",
             "content-type": "application/json",
-            "Authorization": f"Basic {authb64.decode()}"
+            "Authorization": f"Basic {authb64.decode()}",
         }
 
         self.headers = headers
         self.hostname = hostname
         self.port = ":" + port
-        self.path_to_api = f"https://{self.hostname}{self.port}/zosmf"
+        self.path_to_api = f"{protocol}://{self.hostname}{self.port}/zosmf"
         self.cert_path = cert_path
         self.log = log
 
     def verify_off(self):
         pass
-

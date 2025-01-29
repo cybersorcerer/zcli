@@ -2,23 +2,24 @@ import sys
 import click
 from click_help_colors import HelpColorsGroup, HelpColorsCommand
 
-from tui.software import critical_updates
-from tui.software import fixcat_updates
-from tui.software import software_updates
-from tui.software import instance_list
+from tui.software import tui_sms_crit_updates
+from tui.software import tui_sms_fixc_updates
+from tui.software import tui_sms_soft_updates
+from tui.software import tui_sms_list
 
 from commands.cmd_utils import MutuallyExclusiveOption
-from commands.cmd_defaults import HOST_NAME, GLOBAL_CSI
+from commands.cmd_config import GLOBAL_CSI
 from zosapi import software as s
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define the software group                                                    #
-#------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------#
 @click.group(
-    name='software',
+    name="software",
     cls=HelpColorsGroup,
-    help_headers_color='yellow',
-    help_options_color='green',
+    help_headers_color="yellow",
+    help_options_color="green",
 )
 def software_cli() -> None:
     """
@@ -34,14 +35,15 @@ def software_cli() -> None:
     """
     pass
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define the query subgroup of the software group                              #
-#------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------#
 @software_cli.group(
-    name='query',
+    name="query",
     cls=HelpColorsGroup,
-    help_headers_color='yellow',
-    help_options_color='green',
+    help_headers_color="yellow",
+    help_options_color="green",
 )
 def query_cli() -> None:
     """
@@ -56,52 +58,50 @@ def query_cli() -> None:
     """
     pass
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define the csids subcommand command of the query subgroup                    #
-#------------------------------------------------------------------------------#
-@query_cli.command(
-    name='csids',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
-)
+# ------------------------------------------------------------------------------#
+@query_cli.command(name="csids", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    '--global-csi',
-    '-gc',
+    "--global-csi",
+    "-gc",
     type=str,
     required=True,
     default=GLOBAL_CSI,
-    help=f'The name of the SMP/E Global CSI. Default is {GLOBAL_CSI}'
+    show_default=True,
+    help=f"The name of the SMP/E Global CSI. Default is {GLOBAL_CSI}",
 )
 @click.option(
-    '--zones',
-    '-z',
+    "--zones",
+    "-z",
     type=str,
-    default='GLOBAL',
-    help='One or more SMP/E Zone names, separated by comma.'
+    default="GLOBAL",
+    show_default=True,
+    help="One or more SMP/E Zone names, separated by comma.",
 )
 @click.option(
-    '--entry',
-    '-e',
-    type=str,
-    default='',
-    help='SMP/E entry type (sysmod, dddef etc).'
+    "--entry", "-e", type=str, default="", help="SMP/E entry type (sysmod, dddef etc)."
 )
 @click.option(
-    '--subentries',
-    '-se',
+    "--subentries",
+    "-se",
     type=str,
-    default='',
-    help='Blank separated string of subentries.'
+    default="",
+    help="Blank separated string of subentries.",
 )
 @click.option(
-    '--filter',
-    '-fi',
-    type=str,
-    default='',
-    help='Some filter criteria for the query.'
+    "--filter", "-fi", type=str, default="", help="Some filter criteria for the query."
 )
 @click.pass_context
-def csids(ctx: click.Context, global_csi: str, zones: str, entry: str, subentries: str, filter: str):
+def csids(
+    ctx: click.Context,
+    global_csi: str,
+    zones: str,
+    entry: str,
+    subentries: str,
+    filter: str,
+):
     """
     Query SMP/E CSI data sets.
 
@@ -144,69 +144,80 @@ def csids(ctx: click.Context, global_csi: str, zones: str, entry: str, subentrie
     The list of conditions with which to limit the entries to be returned
     """
 
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    logging = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    client = s.SMS(HOST_NAME, user, password)
+    logging.debug("CMD-SOFTWARE-000D list() entered with:")
+    logging.debug(f"                          global csi: {global_csi}")
+    logging.debug(f"                               zones: {zones}")
+    logging.debug(f"                               entry: {entry}")
+    logging.debug(f"                          subentries: {subentries}")
+    logging.debug(f"                              filter: {filter}")
+
+    client = s.SMS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
     errors, response = client.csiquery(
         global_name=global_csi,
         zones=zones,
         entries=entry,
         subentries=subentries,
         filter=filter,
-        verify=verify
+        verify=verify,
     )
     if errors:
-        sys.stderr.write(f'{str(errors)}\n')
+        sys.stderr.write(f"{str(errors)}\n")
     else:
-        sys.stdout.write(f'{response.text}\n')
+        sys.stdout.write(f"{response.text}\n")
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define criticalupdates command of the query subgroup of software group       #
-#------------------------------------------------------------------------------#
-@query_cli.command(
-    name='critupdates',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
-)
+# ------------------------------------------------------------------------------#
+@query_cli.command(name="critupdates", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    '--nick-name',
-    '-nn',
+    "--nick-name",
+    "-nn",
     type=str,
-    default='',
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
-    help='The system nick name of the software instance.'
+    help="The system nick name of the software instance.",
 )
 @click.option(
-    '--swi-name',
-    '-sn',
+    "--swi-name",
+    "-sn",
     type=str,
-    default='',
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
-    help='The name of the software instance.'
+    help="The name of the software instance.",
 )
 @click.option(
-    '--uuid',
-    '-u',
+    "--uuid",
+    "-u",
     type=str,
-    default='',
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["swi_name", "nick_name"],
-    help='The uuid representing the software instance.'
+    help="The uuid representing the software instance.",
 )
 @click.option(
-    '--tui/ --no-tui',
+    "--tui/ --no-tui",
     required=False,
     default=False,
     show_default=True,
-    help='Display response data in a table.'
+    help="Display response data in a table.",
 )
 @click.pass_context
-def critical_updates(ctx: click.Context, nick_name: str, swi_name: str, uuid: str, tui: bool):
+def critical_updates(
+    ctx: click.Context, nick_name: str, swi_name: str, uuid: str, tui: bool
+):
     """
     Get information about Missing Critical Updates.
 
@@ -226,70 +237,83 @@ def critical_updates(ctx: click.Context, nick_name: str, swi_name: str, uuid: st
     \b
     This command might take a considerable amount of time to complete, so be patient :-)
     """
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    logging = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    client = s.SMS(HOST_NAME, user, password)
-    errors, response = client.missing_critical_updates(nickname=nick_name, instance=swi_name, uuid=uuid, verify=verify)
+    logging.debug("CMD-SOFTWARE-000D list() entered with:")
+    logging.debug(f"                           nick name: {nick_name}")
+    logging.debug(f"              software instance name: {swi_name}")
+    logging.debug(f"                                uuid: {uuid}")
+    logging.debug(f"                                 tui: {tui}")
+
+    client = s.SMS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
+    errors, response = client.missing_critical_updates(
+        nickname=nick_name, instance=swi_name, uuid=uuid, verify=verify
+    )
     if errors:
         sys.stderr.write(f"{str(errors)}\n")
     else:
         if not tui:
-           sys.stdout.write(f'{response.text}\n')
+            sys.stdout.write(f"{response.text}\n")
         else:
-           critical_updates.show_tui(response.text)
+            tui_sms_crit_updates.show_tui(response.text)
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define software updates command of the query subgroup of software group      #
-#------------------------------------------------------------------------------#
-@query_cli.command(
-    name='softupdates',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
-)
+# ------------------------------------------------------------------------------#
+@query_cli.command(name="softupdates", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    '--nick-name',
-    '-nn',
+    "--nick-name",
+    "-nn",
     type=str,
-    default='',
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
-    help='The system nick name of the software instance.'
+    help="The system nick name of the software instance.",
 )
 @click.option(
-    '--swi-name',
-    '-sn',
+    "--swi-name",
+    "-sn",
     type=str,
-    default='',
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
-    help='The name of the software instance.'
+    help="The name of the software instance.",
 )
 @click.option(
-    '--uuid',
-    '-u',
+    "--uuid",
+    "-u",
     type=str,
-    default='',
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["swi_name", "nick_name"],
-    help='The uuid representing the software instance.'
+    help="The uuid representing the software instance.",
 )
-@click.argument(
-    'sysmods',
-    nargs=-1,
-    required=True
-)
+@click.argument("sysmods", nargs=-1, required=True)
 @click.option(
-    '--tui/ --no-tui',
+    "--tui/ --no-tui",
     required=False,
     default=False,
     show_default=True,
-    help='Display response data in a table.'
+    help="Display response data in a table.",
 )
 @click.pass_context
-def software_updates(ctx: click.Context, nick_name: str, swi_name: str, uuid: str, sysmods: tuple[str, ...], tui: bool):
+def software_updates(
+    ctx: click.Context,
+    nick_name: str,
+    swi_name: str,
+    uuid: str,
+    sysmods: tuple[str, ...],
+    tui: bool,
+):
     """
     Search Software updates.
 
@@ -312,71 +336,79 @@ def software_updates(ctx: click.Context, nick_name: str, swi_name: str, uuid: st
     \b
     This command might take a considerable amount of time to complete, so be patient :-)
     """
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    logging = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    client = s.SMS(HOST_NAME, user, password)
+    logging.debug("CMD-SOFTWARE-000D list() entered with:")
+    logging.debug(f"                           nick name: {nick_name}")
+    logging.debug(f"              software instance name: {swi_name}")
+    logging.debug(f"                                uuid: {uuid}")
+    logging.debug(f"                                 tui: {tui}")
+
+    client = s.SMS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
     errors, response = client.search_software_updates(
-        nickname=nick_name,
-        instance=swi_name,
-        uuid=uuid,
-        sysmods=sysmods,
-        verify=verify
+        nickname=nick_name, instance=swi_name, uuid=uuid, sysmods=sysmods, verify=verify
     )
     if errors:
         sys.stderr.write(f"{str(errors)}\n")
     else:
         if not tui:
-           sys.stdout.write(f'{response.text}\n')
+            sys.stdout.write(f"{response.text}\n")
         else:
-           software_updates.show_tui(response.text)
+            tui_sms_soft_updates.show_tui(response.text)
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define fixcatupdates command of the query subgroup of software group         #
-#------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------#
 @query_cli.command(
-    name='fixcatupdates',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
+    name="fixcatupdates", cls=HelpColorsCommand, help_options_color="blue"
 )
 @click.option(
-    '--nick-name',
-    '-nn',
+    "--nick-name",
+    "-nn",
     type=str,
-    default='',
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
-    help='The system nick name of the software instance.'
+    help="The system nick name of the software instance.",
 )
 @click.option(
-    '--swi-name',
-    '-sn',
+    "--swi-name",
+    "-sn",
     type=str,
-    default='',
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
-    help='The name of the software instance.'
+    help="The name of the software instance.",
 )
 @click.option(
-    '--uuid',
-    '-u',
+    "--uuid",
+    "-u",
     type=str,
-    default='',
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["swi_name", "nick_name"],
-    help='The uuid representing the software instance.'
+    help="The uuid representing the software instance.",
 )
 @click.option(
-    '--tui/ --no-tui',
+    "--tui/ --no-tui",
     required=False,
     default=False,
     show_default=True,
-    help='Display response data in a table.'
+    help="Display response data in a table.",
 )
 @click.pass_context
-def fixcat_updates(ctx: click.Context, nick_name: str, swi_name: str, uuid: str, tui: bool):
+def fixcat_updates(
+    ctx: click.Context, nick_name: str, swi_name: str, uuid: str, tui: bool
+):
     """
     Get information about missing FIXCAT Updates.
 
@@ -395,29 +427,43 @@ def fixcat_updates(ctx: click.Context, nick_name: str, swi_name: str, uuid: str,
     \b
     This command might take a considerable amount of time to complete, so be patient :-)
     """
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    logging = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    client = s.SMS(HOST_NAME, user, password)
-    errors, response = client.missing_fixcat_updates(nickname=nick_name, instance=swi_name, uuid=uuid, verify=verify)
+    logging.debug("CMD-SOFTWARE-000D list() entered with:")
+    logging.debug(f"                           nick name: {nick_name}")
+    logging.debug(f"              software instance name: {swi_name}")
+    logging.debug(f"                                uuid: {uuid}")
+    logging.debug(f"                                 tui: {tui}")
+
+    client = s.SMS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
+    errors, response = client.missing_fixcat_updates(
+        nickname=nick_name, instance=swi_name, uuid=uuid, verify=verify
+    )
     if errors:
         sys.stderr.write(f"{str(errors)}\n")
     else:
         if not tui:
-           sys.stdout.write(f'{response.text}\n')
+            sys.stdout.write(f"{response.text}\n")
         else:
-           fixcat_updates.show_tui(response.text)
+            tui_sms_fixc_updates.show_tui(response.text)
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define the instances subgroup of the software group                          #
-#------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------#
 @software_cli.group(
-    name='instances',
+    name="instances",
     cls=HelpColorsGroup,
-    help_headers_color='yellow',
-    help_options_color='green',
+    help_headers_color="yellow",
+    help_options_color="green",
 )
 def instances_cli() -> None:
     """
@@ -446,20 +492,13 @@ def instances_cli() -> None:
     """
     pass
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define the uuid subcommand of the instances subgroup                         #
-#------------------------------------------------------------------------------#
-@instances_cli.command(
-    name='uuid',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
-)
+# ------------------------------------------------------------------------------#
+@instances_cli.command(name="uuid", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    '--nick-name',
-    '-nn',
-    required=True,
-    type=click.STRING,
-    help='The system nick name'
+    "--nick-name", "-nn", required=True, type=click.STRING, help="The system nick name"
 )
 @click.pass_context
 def uuid(ctx: click.Context, nick_name: str):
@@ -482,46 +521,47 @@ def uuid(ctx: click.Context, nick_name: str):
     The UUID can also be displayed by using the "D IPLINFO" MVS system command.
     """
 
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    logging = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    client = s.SMS(HOST_NAME, user, password)
-    errors, response = client.get_system_uuid(
-        nickname=nick_name,
-        verify=verify
+    logging.debug("CMD-SOFTWARE-000D list() entered with:")
+    logging.debug(f"                           nick name: {nick_name}")
+
+    client = s.SMS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
     )
+    errors, response = client.get_system_uuid(nickname=nick_name, verify=verify)
 
     if errors:
-        sys.stderr.write(f'{str(errors)}\n')
+        sys.stderr.write(f"{str(errors)}\n")
     else:
-        sys.stdout.write(f'{response.text}\n')
+        sys.stdout.write(f"{response.text}\n")
 
 
-#------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------#
 # Define the list software instances command of the instances group            #
-#------------------------------------------------------------------------------#
-@instances_cli.command(
-    name='list',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
-)
+# ------------------------------------------------------------------------------#
+@instances_cli.command(name="list", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    '--pswi / --no-pswi',
+    "--pswi / --no-pswi",
     default=False,
     show_default=True,
-    help='List software or portable software instances.'
+    help="List software or portable software instances.",
 )
 @click.option(
-    '--tui/ --no-tui',
+    "--tui/ --no-tui",
     required=False,
     default=False,
     show_default=True,
-    help='Display response data in a table.'
+    help="Display response data in a table.",
 )
 @click.pass_context
-def instance_list(ctx: click.Context, pswi: bool = False, tui: bool = False):
+def list(ctx: click.Context, pswi: bool = False, tui: bool = False):
     """
     Obtain a list of software or portable software instances.
 
@@ -536,30 +576,36 @@ def instance_list(ctx: click.Context, pswi: bool = False, tui: bool = False):
     To obtain a list of all portable software instances issue:
     ./zcli software instances list --pswi
     """
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    loggin = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    client = s.SMS(HOST_NAME, user, password)
+    logging.debug("CMD-SOFTWARE-000D list() entered with:")
+    logging.debug(f"     portable software instance name: {pswi}")
+    logging.debug(f"                                 tui: {tui}")
+
+    client = s.SMS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
     errors, response = client.list_software_instances(pswi=pswi, verify=verify)
 
     if errors:
         sys.stderr.write(f"{str(errors)}\n")
     else:
         if not tui:
-           sys.stdout.write(f'{response.text}\n')
+            sys.stdout.write(f"{response.text}\n")
         else:
-           instance_list.show_tui(response.text)
+            tui_sms_list.show_tui(response.text)
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define the add instance subcommand of the instances group                    #
-#------------------------------------------------------------------------------#
-@instances_cli.command(
-    name='add',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
-)
+# ------------------------------------------------------------------------------#
+@instances_cli.command(name="add", cls=HelpColorsCommand, help_options_color="blue")
 @click.pass_context
 def add(ctx: click.Context, file_name: str):
     """
@@ -579,67 +625,68 @@ def add(ctx: click.Context, file_name: str):
     \b
     https://www.ibm.com/docs/en/zos/3.1.0?topic=services-add-new-software-instance
     """
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    loggin = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    client = s.SMS(HOST_NAME, user, password)
+    logging.debug("CMD-SOFTWARE-000D list() entered with:")
+    logging.debug(f"                           file name: {file_name}")
+
+    client = s.SMS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
     errors, response = client.add_software_instance(filename=file_name, verify=verify)
     if errors:
-        sys.stderr.write(f'{str(errors)}\n')
+        sys.stderr.write(f"{str(errors)}\n")
     else:
-        sys.stdout.write(f'{response.text}\n')
+        sys.stdout.write(f"{response.text}\n")
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define the export instance subcommand of the instances group                 #
-#------------------------------------------------------------------------------#
-@instances_cli.command(
-    name='export',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
-)
+# ------------------------------------------------------------------------------#
+@instances_cli.command(name="export", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    '--file-name',
-    '-fn',
+    "--file-name",
+    "-fn",
     type=str,
     required=True,
-    help='File Name of the export input file.'
+    help="File Name of the export input file.",
 )
 @click.option(
-    '--nick-name',
-    '-nn',
+    "--nick-name",
+    "-nn",
     type=str,
-    default='',
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
-    help='The system nick name of the software instance'
+    help="The system nick name of the software instance",
 )
 @click.option(
-    '--swi-name',
-    '-sn',
+    "--swi-name",
+    "-sn",
     type=str,
-    default='',
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
-    help='The name of the software instance'
+    help="The name of the software instance",
 )
 @click.option(
-    '--uuid',
-    '-u',
+    "--uuid",
+    "-u",
     type=str,
-    default='',
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["swi_name", "nick_name"],
-    help='The name of the software instance'
+    help="The name of the software instance",
 )
 @click.pass_context
 def export(
-    ctx: click.Context,
-    file_name: str,
-    nick_name: str,
-    swi_name: str,
-    uuid: str
+    ctx: click.Context, file_name: str, nick_name: str, swi_name: str, uuid: str
 ):
     """
     Export a defined software instance.
@@ -672,66 +719,73 @@ def export(
     \b
     https://www.ibm.com/docs/en/zos/3.1.0?topic=services-export-defined-software-instance
     """
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    loggin = ctx.obj['LOGGING']
+    user = ctx.obj["USER"]
+    password = ctx.obj["PASSWORD"]
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
+    HOST_NAME = ctx.obj["HOST_NAME"]
 
-    client = s.SMS(HOST_NAME, user, password)
+    logging.debug("CMD-SOFTWARE-000D list() entered with:")
+    logging.debug(f"                           file name: {file_name}")
+    logging.debug(f"                           nick name: {nick_name}")
+    logging.debug(f"              software instance name: {swi_name}")
+    logging.debug(f"                                uuid: {uuid}")
+
+    client = s.SMS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
     errors, response = client.export_software_instance(
         filename=file_name,
         nick_name=nick_name,
         swi_name=swi_name,
         uuid=uuid,
-        verify=verify)
+        verify=verify,
+    )
 
     if errors:
-        sys.stderr.write(f'{str(errors)}\n')
+        sys.stderr.write(f"{str(errors)}\n")
     else:
-        sys.stdout.write(f'{response.text}\n')
+        sys.stdout.write(f"{response.text}\n")
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define the delete instance subcommand of the instances group                 #
-#------------------------------------------------------------------------------#
-@instances_cli.command(
-    name='delete',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
-)
+# ------------------------------------------------------------------------------#
+@instances_cli.command(name="delete", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    '--nick-name',
-    '-nn',
+    "--nick-name",
+    "-nn",
     type=str,
-    default='',
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
-    help='The system nick name of the software instance'
+    help="The system nick name of the software instance",
 )
 @click.option(
-    '--swi-name',
-    '-sn',
+    "--swi-name",
+    "-sn",
     type=str,
-    default='',
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
-    help='The name of the software instance'
+    help="The name of the software instance",
 )
 @click.option(
-    '--uuid',
-    '-u',
+    "--uuid",
+    "-u",
     type=str,
-    default='',
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["swi_name", "nick_name"],
-    help='The name of the software instance'
+    help="The name of the software instance",
 )
 @click.pass_context
-def delete(
-    ctx: click.Context,
-    nick_name: str,
-    swi_name: str,
-    uuid: str
-):
+def delete(ctx: click.Context, nick_name: str, swi_name: str, uuid: str):
     """
     Delete a defined software instance.
 
@@ -751,58 +805,62 @@ def delete(
     ./zcli software instances delete -u <instance_uuid>
     \b
     """
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    loggin = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    client = s.SMS(HOST_NAME, user, password)
+    logging.debug("CMD-SOFTWARE-000D list() entered with:")
+    logging.debug(f"                           nick name: {nick_name}")
+    logging.debug(f"              software instance name: {swi_name}")
+    logging.debug(f"                                uuid: {uuid}")
+
+    client = s.SMS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
     errors, response = client.delete_software_instance(
-        nick_name=nick_name,
-        swi_name=swi_name,
-        uuid=uuid,
-        verify=verify
+        nick_name=nick_name, swi_name=swi_name, uuid=uuid, verify=verify
     )
 
     if errors:
-        sys.stderr.write(f'{str(errors)}\n')
+        sys.stderr.write(f"{str(errors)}\n")
     else:
-        sys.stdout.write(f'{response.text}\n')
+        sys.stdout.write(f"{response.text}\n")
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define the siprops command of the instances subgroup of software group       #
-#------------------------------------------------------------------------------#
-@instances_cli.command(
-    name='siprops',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
-)
+# ------------------------------------------------------------------------------#
+@instances_cli.command(name="siprops", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    '--nick-name',
-    '-nn',
+    "--nick-name",
+    "-nn",
     type=str,
-    default='',
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
-    help='The system nick name of the software instance'
+    help="The system nick name of the software instance",
 )
 @click.option(
-    '--swi-name',
-    '-sn',
+    "--swi-name",
+    "-sn",
     type=str,
-    default='',
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
-    help='The name of the software instance'
+    help="The name of the software instance",
 )
 @click.option(
-    '--uuid',
-    '-u',
+    "--uuid",
+    "-u",
     type=str,
-    default='',
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["swi_name", "nick_name"],
-    help='The name of the software instance'
+    help="The name of the software instance",
 )
 @click.pass_context
 def siprops(ctx: click.Context, nick_name: str, swi_name: str, uuid: str):
@@ -818,52 +876,63 @@ def siprops(ctx: click.Context, nick_name: str, swi_name: str, uuid: str):
                         OR
         - The software instance uuid
     """
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    logging = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    client = s.SMS(HOST_NAME, user, password)
-    errors, response = client.get_software_instance_properties(nick_name=nick_name, sw_name=swi_name, uuid=uuid, verify=verify)
+    logging.debug("CMD-SOFTWARE-000D list() entered with:")
+    logging.debug(f"                           nick name: {nick_name}")
+    logging.debug(f"              software instance name: {swi_name}")
+    logging.debug(f"                                uuid: {uuid}")
+
+    client = s.SMS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
+    errors, response = client.get_software_instance_properties(
+        nick_name=nick_name, sw_name=swi_name, uuid=uuid, verify=verify
+    )
     if errors:
-        sys.stderr.write(f'{str(errors)}\n')
+        sys.stderr.write(f"{str(errors)}\n")
     else:
-        sys.stdout.write(f'{response.text}\n')
+        sys.stdout.write(f"{response.text}\n")
 
-#------------------------------------------------------------------------------#
+
+# ------------------------------------------------------------------------------#
 # Define the silistds command of the instances subgroup of software group      #
-#------------------------------------------------------------------------------#
+# ------------------------------------------------------------------------------#
 @instances_cli.command(
-    name='silistds',
-    cls=HelpColorsCommand,
-    help_options_color='blue'
+    name="silistds", cls=HelpColorsCommand, help_options_color="blue"
 )
 @click.option(
-    '--nick-name',
-    '-nn',
+    "--nick-name",
+    "-nn",
     type=str,
-    default='',
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
-    help='The system nick name of the software instance'
+    help="The system nick name of the software instance",
 )
 @click.option(
-    '--swi-name',
-    '-sn',
+    "--swi-name",
+    "-sn",
     type=str,
-    default='',
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
-    help='The name of the software instance'
+    help="The name of the software instance",
 )
 @click.option(
-    '--uuid',
-    '-u',
+    "--uuid",
+    "-u",
     type=str,
-    default='',
+    default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["swi_name", "nick_name"],
-    help='The uuid representing the software instance.'
+    help="The uuid representing the software instance.",
 )
 @click.pass_context
 def silistds(ctx: click.Context, nick_name: str, swi_name: str, uuid: str):
@@ -879,14 +948,26 @@ def silistds(ctx: click.Context, nick_name: str, swi_name: str, uuid: str):
                         OR
         - The software instance uuid
     """
-    user = ctx.obj['USER']
-    password = ctx.obj['PASSWORD']
-    verify = ctx.obj['VERIFY']
-    logging = ctx.obj['LOGGING']
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
 
-    client = s.SMS(HOST_NAME, user, password)
-    errors, response = client.get_software_instance_datasets(nick_name=nick_name, sw_name=swi_name, uuid=uuid, verify=verify)
+    logging.debug("CMD-SOFTWARE-000D list() entered with:")
+    logging.debug(f"                           nick name: {nick_name}")
+    logging.debug(f"              software instance name: {swi_name}")
+    logging.debug(f"                                uuid: {uuid}")
+
+    client = s.SMS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
+    errors, response = client.get_software_instance_datasets(
+        nick_name=nick_name, sw_name=swi_name, uuid=uuid, verify=verify
+    )
     if errors:
         sys.stderr.write(f"{str(errors)}\n")
     else:
-        sys.stdout.write(f'{response.text}\n')
+        sys.stdout.write(f"{response.text}\n")

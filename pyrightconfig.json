@@ -1,4 +1,37 @@
 {
-  "venvPath": "/Users/Ronald.Funk/Documents/source/gitlab/zosmf_client",
-  "venv": "venv"
+  "include": [
+    "tui",
+    "commands",
+    "zosapi"
+  ],
+
+  "exclude": [
+    "**/__pycache__",
+  ],
+
+  "ignore": [
+    ""
+  ],
+
+  "defineConstant": {
+    "DEBUG": true
+  },
+
+  "reportMissingImports": "error",
+  "reportMissingTypeStubs": false,
+
+  "pythonVersion": "3.12",
+  "pythonPlatform": "Darwin",
+
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "pythonVersion": "3.12",
+      "pythonPlatform": "Darwin",
+      "extraPaths": [
+        ""
+      ],
+      "reportMissingImports": "warning"
+    },
+  ]
 }

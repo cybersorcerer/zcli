@@ -1,7 +1,9 @@
 import sys
+
 import requests
 
 from zosapi import client as C
+
 
 class JOBS(C.CLIENT):
     errors: dict = {}
@@ -63,12 +65,12 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f'JOBS-000D get_job_list() entered with:')
-        self.log.debug(f'                owner: {owner}')
-        self.log.debug(f'               prefix: {prefix}')
-        self.log.debug(f'            exec_data: {exec_data}')
-        self.log.debug(f'          active_only: {active_only}')
-        self.log.debug(f'               verify: {verify}')
+        self.log.debug(f"JOBS-000D get_job_list() entered with:")
+        self.log.debug(f"                owner: {owner}")
+        self.log.debug(f"               prefix: {prefix}")
+        self.log.debug(f"            exec_data: {exec_data}")
+        self.log.debug(f"          active_only: {active_only}")
+        self.log.debug(f"               verify: {verify}")
 
         if not verify:
             requests.packages.urllib3.disable_warnings()
@@ -76,24 +78,32 @@ class JOBS(C.CLIENT):
         url = f"{self.path_to_api}/restjobs/jobs?owner={owner}&prefix={prefix}&exec-data={exec_data}&max-jobs={max_jobs}"
 
         if active_only:
-            url = url + '&status=active'
+            url = url + "&status=active"
         try:
             response = requests.get(url, headers=self.headers, verify=verify)
         except Exception as e:
             JOBS.rc = 16
             JOBS.errors = {"rc": JOBS.rc, "request_error": e}
-            self.log.critical(f'JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}')
+            self.log.critical(
+                f"JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}"
+            )
             sys.exit(JOBS.rc)
 
         if response.status_code != 200:
-            self.log.error(f"JOBS-002E An unexpected statuscode {response.status_code} has been received:")
+            self.log.error(
+                f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
+            )
             self.log.error(f"         {response.text}")
-            JOBS.errors = {"rc": JOBS.rc, "status_code": response.status_code, "reason": response.reason}
+            JOBS.errors = {
+                "rc": JOBS.rc,
+                "status_code": response.status_code,
+                "reason": response.reason,
+            }
             JOBS.rc = 8
 
-        self.log.debug(f'JOBS-000D get_job_list() returned with:')
-        self.log.debug(f'            errors: {JOBS.errors}')
-        self.log.debug(f'          response: {response}')
+        self.log.debug(f"JOBS-000D get_job_list() returned with:")
+        self.log.debug(f"            errors: {JOBS.errors}")
+        self.log.debug(f"          response: {response}")
 
         return JOBS.errors, response
 
@@ -103,7 +113,7 @@ class JOBS(C.CLIENT):
         jobid: str,
         stepdata: str = "Y",
         files: bool = False,
-        verify: bool = True
+        verify: bool = True,
     ):
         """_Get a single job by its ID_
 
@@ -121,12 +131,12 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f'JOBS-000D get_job_by_jobname_jobid() entered with:')
-        self.log.debug(f'           Job Name: {jobname}')
-        self.log.debug(f'             Job ID: {jobid}')
-        self.log.debug(f'          Step Data: {stepdata}')
-        self.log.debug(f'              Files: {files}')
-        self.log.debug(f'             Verify: {verify}')
+        self.log.debug(f"JOBS-000D get_job_by_jobname_jobid() entered with:")
+        self.log.debug(f"           Job Name: {jobname}")
+        self.log.debug(f"             Job ID: {jobid}")
+        self.log.debug(f"          Step Data: {stepdata}")
+        self.log.debug(f"              Files: {files}")
+        self.log.debug(f"             Verify: {verify}")
 
         if not verify:
             requests.packages.urllib3.disable_warnings()
@@ -140,18 +150,26 @@ class JOBS(C.CLIENT):
         except Exception as e:
             JOBS.rc = 16
             JOBS.errors = {"rc": JOBS.rc, "request_error": e}
-            self.log.critical(f'JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}')
+            self.log.critical(
+                f"JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}"
+            )
             sys.exit(JOBS.rc)
 
         if response.status_code != 200:
-            self.log.error(f"JOBS-002E An unexpected statuscode {response.status_code} has been received:")
+            self.log.error(
+                f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
+            )
             self.log.error(f"         {response.text}")
             JOBS.rc = 8
-            JOBS.errors = {"rc": JOBS.rc, "status_code": response.status_code, "reason": response.reason}
+            JOBS.errors = {
+                "rc": JOBS.rc,
+                "status_code": response.status_code,
+                "reason": response.reason,
+            }
 
-        self.log.debug(f'JOBS-000D get_job_by_jobname_jobid() returned with:')
-        self.log.debug(f'            errors: {JOBS.errors}')
-        self.log.debug(f'          response: {response.json()}')
+        self.log.debug(f"JOBS-000D get_job_by_jobname_jobid() returned with:")
+        self.log.debug(f"            errors: {JOBS.errors}")
+        self.log.debug(f"          response: {response.json()}")
 
         return JOBS.errors, response
 
@@ -160,7 +178,7 @@ class JOBS(C.CLIENT):
         correlator: str,
         stepdata: str = "Y",
         files: bool = False,
-        verify: bool = True
+        verify: bool = True,
     ):
         """_Get a single job by its job correlator._
 
@@ -177,11 +195,11 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f'JOBS-000D get_job_by_job_correlator() entered with:')
-        self.log.debug(f'          correlator: {correlator}')
-        self.log.debug(f'           Step Data: {stepdata}')
-        self.log.debug(f'               Files: {files}')
-        self.log.debug(f'              Verify: {verify}')
+        self.log.debug(f"JOBS-000D get_job_by_job_correlator() entered with:")
+        self.log.debug(f"          correlator: {correlator}")
+        self.log.debug(f"           Step Data: {stepdata}")
+        self.log.debug(f"               Files: {files}")
+        self.log.debug(f"              Verify: {verify}")
 
         url = f"{self.path_to_api}/restjobs/jobs/{correlator}?step-date={stepdata}"
         if files:
@@ -192,27 +210,30 @@ class JOBS(C.CLIENT):
         except Exception as e:
             JOBS.rc = 16
             JOBS.errors = {"rc": JOBS.rc, "request_error": e}
-            self.log.critical(f'JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}')
+            self.log.critical(
+                f"JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}"
+            )
             sys.exit(JOBS.rc)
 
         if response.status_code != 200:
             JOBS.rc = 8
-            self.log.error(f"JOBS-002E An unexpected statuscode {response.status_code} has been received:")
+            self.log.error(
+                f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
+            )
             self.log.error(f"         {response.text}")
-            JOBS.errors = {"rc": JOBS.rc, "status_code": response.status_code, "reason": response.reason}
+            JOBS.errors = {
+                "rc": JOBS.rc,
+                "status_code": response.status_code,
+                "reason": response.reason,
+            }
 
-        self.log.debug(f'JOBS-000D get_job_by_job_correlator() returned with:')
-        self.log.debug(f'            errors: {JOBS.errors}')
-        self.log.debug(f'          response: {response.json()}')
+        self.log.debug(f"JOBS-000D get_job_by_job_correlator() returned with:")
+        self.log.debug(f"            errors: {JOBS.errors}")
+        self.log.debug(f"          response: {response.json()}")
 
         return JOBS.errors, response
 
-    def get_files_by_jobname_jobid(
-        self,
-        jobname: str,
-        jobid: str,
-        verify: bool = True
-    ):
+    def get_files_by_jobname_jobid(self, jobname: str, jobid: str, verify: bool = True):
         """_Get the spool files of a job by its jobname and jobid_
 
         Args:
@@ -229,10 +250,10 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f'JOBS-000D get_files_by_jobname_jobid() entered with:')
-        self.log.debug(f'          Job Name: {jobname}')
-        self.log.debug(f'            Job ID: {jobid}')
-        self.log.debug(f'            Verify: {verify}')
+        self.log.debug(f"JOBS-000D get_files_by_jobname_jobid() entered with:")
+        self.log.debug(f"          Job Name: {jobname}")
+        self.log.debug(f"            Job ID: {jobid}")
+        self.log.debug(f"            Verify: {verify}")
 
         if not verify:
             requests.packages.urllib3.disable_warnings()
@@ -244,26 +265,30 @@ class JOBS(C.CLIENT):
         except Exception as e:
             JOBS.rc = 16
             JOBS.errors = {"rc": JOBS.rc, "request_error": e}
-            self.log.critical(f'JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}')
+            self.log.critical(
+                f"JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}"
+            )
             sys.exit(JOBS.rc)
 
         if response.status_code != 200:
             JOBS.rc = 8
-            self.log.error(f"JOBS-002E An unexpected statuscode {response.status_code} has been received:")
+            self.log.error(
+                f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
+            )
             self.log.error(f"         {response.text}")
-            JOBS.errors = {"rc": JOBS.rc, "status_code": response.status_code, "reason": response.reason}
+            JOBS.errors = {
+                "rc": JOBS.rc,
+                "status_code": response.status_code,
+                "reason": response.reason,
+            }
 
-        self.log.debug(f'JOBS-000D get_files_by_jobname_jobid() returned with:')
-        self.log.debug(f'            errors: {JOBS.errors}')
-        self.log.debug(f'          response: {response.json()}')
+        self.log.debug(f"JOBS-000D get_files_by_jobname_jobid() returned with:")
+        self.log.debug(f"            errors: {JOBS.errors}")
+        self.log.debug(f"          response: {response.json()}")
 
         return JOBS.errors, response
 
-    def get_files_by_job_correlator(
-        self,
-        correlator: str,
-        verify: bool = True
-    ):
+    def get_files_by_job_correlator(self, correlator: str, verify: bool = True):
         """_Get the spool files of a jobs correlator_
 
         Args:
@@ -278,9 +303,9 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f'JOBS-000D get_files_by_job_correlator() entered with:')
-        self.log.debug(f'          correlator: {correlator}')
-        self.log.debug(f'              Verify: {verify}')
+        self.log.debug(f"JOBS-000D get_files_by_job_correlator() entered with:")
+        self.log.debug(f"          correlator: {correlator}")
+        self.log.debug(f"              Verify: {verify}")
 
         if not verify:
             requests.packages.urllib3.disable_warnings()
@@ -292,18 +317,26 @@ class JOBS(C.CLIENT):
         except Exception as e:
             JOBS.rc = 16
             JOBS.errors = {"rc": JOBS.rc, "request_error": e}
-            self.log.critical(f'JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}')
+            self.log.critical(
+                f"JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}"
+            )
             sys.exit(JOBS.rc)
 
         if response.status_code == 200:
             JOBS.rc = 8
-            self.log.error(f"JOBS-002E An unexpected statuscode {response.status_code} has been received:")
+            self.log.error(
+                f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
+            )
             self.log.error(f"         {response.text}")
-            JOBS.errors = {"rc": JOBS.rc, "status_code": response.status_code, "reason": response.reason}
+            JOBS.errors = {
+                "rc": JOBS.rc,
+                "status_code": response.status_code,
+                "reason": response.reason,
+            }
 
-        self.log.debug(f'JOBS-000D get_files_by_job_correlator() returned with:')
-        self.log.debug(f'            errors: {JOBS.errors}')
-        self.log.debug(f'          response: {response.json()}')
+        self.log.debug(f"JOBS-000D get_files_by_job_correlator() returned with:")
+        self.log.debug(f"            errors: {JOBS.errors}")
+        self.log.debug(f"          response: {response.json()}")
 
         return JOBS.errors, response
 
@@ -312,11 +345,11 @@ class JOBS(C.CLIENT):
 
     def get_job_file_by_id(
         self,
-        fileid: str = '',
-        jobname: str = '',
-        jobid: str = '',
-        correlator: str = '',
-        verify: bool = True
+        fileid: str = "",
+        jobname: str = "",
+        jobid: str = "",
+        correlator: str = "",
+        verify: bool = True,
     ):
         """Get a JES Spool File by its file ID._
 
@@ -335,45 +368,59 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f'JOBS-000D get_job_file_by_id() entered with:')
-        self.log.debug(f'                    name: {jobname}')
-        self.log.debug(f'                   jobid: {jobid}')
-        self.log.debug(f'          job-correlator: {correlator}')
-        self.log.debug(f'                      id: {fileid}')
-        self.log.debug(f'                  Verify: {verify}')
+        self.log.debug(f"JOBS-000D get_job_file_by_id() entered with:")
+        self.log.debug(f"                    name: {jobname}")
+        self.log.debug(f"                   jobid: {jobid}")
+        self.log.debug(f"          job-correlator: {correlator}")
+        self.log.debug(f"                      id: {fileid}")
+        self.log.debug(f"                  Verify: {verify}")
 
         if not verify:
             requests.packages.urllib3.disable_warnings()
 
         url = f"{self.path_to_api}/restjobs/jobs"
 
-        if jobname != '':
-            url = url + f'/{jobname}'
-            if jobid != '':
-                url = url + f'/{jobid}/files'
+        if jobname != "":
+            url = url + f"/{jobname}"
+            if jobid != "":
+                url = url + f"/{jobid}/files"
             else:
                 JOBS.rc = 8
                 self.log.error("JOBS-004E Job Name and Job ID required.")
                 response = None
-                JOBS.errors = {"rc": JOBS.rc, "status_code": "Job Name and Job ID required.", "reason": "J01"}
+                JOBS.errors = {
+                    "rc": JOBS.rc,
+                    "status_code": "Job Name and Job ID required.",
+                    "reason": "J01",
+                }
                 return JOBS.errors, response
         else:
-            if correlator != '':
-                url = url + f'/{correlator}/files'
+            if correlator != "":
+                url = url + f"/{correlator}/files"
             else:
                 JOBS.rc = 8
-                self.log.error("JOBS-005E One of Job Name and Job ID or Correlator required.")
+                self.log.error(
+                    "JOBS-005E One of Job Name and Job ID or Correlator required."
+                )
                 response = None
-                JOBS.errors = {"rc": JOBS.rc, "status_code": "One of Job Name and Job ID or Correlator required.", "reason": "J02"}
+                JOBS.errors = {
+                    "rc": JOBS.rc,
+                    "status_code": "One of Job Name and Job ID or Correlator required.",
+                    "reason": "J02",
+                }
                 return JOBS.errors, response
 
-        if fileid != '':
-            url = url + f'/{fileid}/records'
+        if fileid != "":
+            url = url + f"/{fileid}/records"
         else:
             JOBS.rc = 8
             self.log.error("JOBS-007E A spool file id is required.")
             response = None
-            JOBS.errors = {"rc": JOBS.rc, "status_code": "A spool file id is required.", "reason": "J03"}
+            JOBS.errors = {
+                "rc": JOBS.rc,
+                "status_code": "A spool file id is required.",
+                "reason": "J03",
+            }
             return JOBS.errors, response
 
         try:
@@ -381,29 +428,37 @@ class JOBS(C.CLIENT):
         except Exception as e:
             JOBS.rc = 16
             JOBS.errors = {"rc": JOBS.rc, "request_error": e}
-            self.log.critical(f'JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}')
+            self.log.critical(
+                f"JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}"
+            )
             sys.exit(JOBS.rc)
 
         if response.status_code != 200:
             JOBS.rc = 8
-            self.log.error(f"JOBS-002E An unexpected statuscode {response.status_code} has been received:")
+            self.log.error(
+                f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
+            )
             self.log.error(f"         {response.text}")
-            JOBS.errors = {"rc": JOBS.rc, "status_code": response.status_code, "reason": response.reason}
+            JOBS.errors = {
+                "rc": JOBS.rc,
+                "status_code": response.status_code,
+                "reason": response.reason,
+            }
 
-        self.log.debug(f'JOBS-000D get_job_file_by_id() returned with:')
-        self.log.debug(f'            errors: {JOBS.errors}')
-        self.log.debug(f'          response: {response}')
+        self.log.debug(f"JOBS-000D get_job_file_by_id() returned with:")
+        self.log.debug(f"            errors: {JOBS.errors}")
+        self.log.debug(f"          response: {response}")
 
         return JOBS.errors, response
 
     def get_job_jcl(
         self,
-        jobname: str = '',
-        jobid: str = '',
-        correlator: str = '',
-        verify: bool = True
+        jobname: str = "",
+        jobid: str = "",
+        correlator: str = "",
+        verify: bool = True,
     ):
-        """Get the jobs JCL.                       
+        """Get the jobs JCL.
 
         Args:
             jobname (str)..........: The z/OS job name; cannot exceed 8 characters.
@@ -420,60 +475,78 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f'JOBS-000D get_job_jcl() entered with:')
-        self.log.debug(f'                    name: {jobname}')
-        self.log.debug(f'                   jobid: {jobid}')
-        self.log.debug(f'          job-correlator: {correlator}')
-        self.log.debug(f'                  Verify: {verify}')
+        self.log.debug(f"JOBS-000D get_job_jcl() entered with:")
+        self.log.debug(f"                    name: {jobname}")
+        self.log.debug(f"                   jobid: {jobid}")
+        self.log.debug(f"          job-correlator: {correlator}")
+        self.log.debug(f"                  Verify: {verify}")
 
         if not verify:
             requests.packages.urllib3.disable_warnings()
 
         url = f"{self.path_to_api}/restjobs/jobs"
 
-        if jobname != '':
-            url = url + f'/{jobname}'
-            if jobid != '':
-                url = url + f'/{jobid}/files'
+        if jobname != "":
+            url = url + f"/{jobname}"
+            if jobid != "":
+                url = url + f"/{jobid}/files"
             else:
                 JOBS.rc = 8
                 self.log.error("JOBS-004E Job Name and Job ID required.")
                 response = None
-                JOBS.errors = {"rc": JOBS.rc, "status_code": "Job Name and Job ID required.", "reason": "J01"}
+                JOBS.errors = {
+                    "rc": JOBS.rc,
+                    "status_code": "Job Name and Job ID required.",
+                    "reason": "J01",
+                }
                 return JOBS.errors, response
         else:
-            if correlator != '':
-                url = url + f'/{correlator}/files'
+            if correlator != "":
+                url = url + f"/{correlator}/files"
             else:
                 JOBS.rc = 8
-                self.log.error("JOBS-005E One of Job Name and Job ID or Correlator required.")
+                self.log.error(
+                    "JOBS-005E One of Job Name and Job ID or Correlator required."
+                )
                 response = None
-                JOBS.errors = {"rc": JOBS.rc, "status_code": "One of Job Name and Job ID or Correlator required.", "reason": "J02"}
+                JOBS.errors = {
+                    "rc": JOBS.rc,
+                    "status_code": "One of Job Name and Job ID or Correlator required.",
+                    "reason": "J02",
+                }
                 return JOBS.errors, response
 
-        url = url + '/JCL/records'
+        url = url + "/JCL/records"
 
         try:
             response = requests.get(url, headers=self.headers, verify=verify)
         except Exception as e:
             JOBS.rc = 16
             JOBS.errors = {"rc": JOBS.rc, "request_error": e}
-            self.log.critical(f'JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}')
+            self.log.critical(
+                f"JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}"
+            )
             sys.exit(JOBS.rc)
 
         if response.status_code != 200:
             JOBS.rc = 8
-            self.log.error(f"JOBS-002E An unexpected statuscode {response.status_code} has been received:")
+            self.log.error(
+                f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
+            )
             self.log.error(f"         {response.text}")
-            JOBS.errors = {"rc": JOBS.rc, "status_code": response.status_code, "reason": response.reason}
+            JOBS.errors = {
+                "rc": JOBS.rc,
+                "status_code": response.status_code,
+                "reason": response.reason,
+            }
 
-        self.log.debug(f'JOBS-000D get_job_jcl() returned with:')
-        self.log.debug(f'            errors: {JOBS.errors}')
-        self.log.debug(f'          response: {response}')
+        self.log.debug(f"JOBS-000D get_job_jcl() returned with:")
+        self.log.debug(f"            errors: {JOBS.errors}")
+        self.log.debug(f"          response: {response}")
 
         return JOBS.errors, response
 
-    def submit_job(self, file_name: str, jes_name: str = '', verify: bool = True):
+    def submit_job(self, file_name: str, jes_name: str = "", verify: bool = True):
         """_Submit job to z/OS_
 
         Args:
@@ -488,41 +561,49 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f'JOBS-000D submit_job() entered with:')
-        self.log.debug(f'                   File Name: {file_name}')
-        self.log.debug(f'          Secondary JES Name: {jes_name}')
-        self.log.debug(f'                      Verify: {verify}')
+        self.log.debug(f"JOBS-000D submit_job() entered with:")
+        self.log.debug(f"                   File Name: {file_name}")
+        self.log.debug(f"          Secondary JES Name: {jes_name}")
+        self.log.debug(f"                      Verify: {verify}")
 
         if not verify:
             requests.packages.urllib3.disable_warnings()
 
         url = f"{self.path_to_api}/restjobs/jobs/"
 
-        if jes_name != '':
-            url = url + f'-{jes_name}'
+        if jes_name != "":
+            url = url + f"-{jes_name}"
 
-        if file_name != '':
-            data = '{ ' + '"file": ' + '"' + f'{file_name}' + '" }'
+        if file_name != "":
+            data = "{ " + '"file": ' + '"' + f"{file_name}" + '" }'
 
-        self.headers['X-IBM-Notification-URL'] = 'http://localhost:8080'
+        self.headers["X-IBM-Notification-URL"] = "http://localhost:8080"
 
         try:
             response = requests.put(url, headers=self.headers, data=data, verify=verify)
         except Exception as e:
             JOBS.rc = 16
             JOBS.errors = {"rc": JOBS.rc, "request_error": e}
-            self.log.critical(f'JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}')
+            self.log.critical(
+                f"JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}"
+            )
             sys.exit(JOBS.rc)
 
         if response.status_code != 201:
             JOBS.rc = 8
-            self.log.error(f"JOBS-002E An unexpected statuscode {response.status_code} has been received:")
+            self.log.error(
+                f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
+            )
             self.log.error(f"         {response.text}")
-            JOBS.errors = {"rc": JOBS.rc, "status_code": response.status_code, "reason": response.reason}
+            JOBS.errors = {
+                "rc": JOBS.rc,
+                "status_code": response.status_code,
+                "reason": response.reason,
+            }
 
-        self.log.debug(f'JOBS-000D submit_job() returned with:')
-        self.log.debug(f'            errors: {JOBS.errors}')
-        self.log.debug(f'          response: {response}')
+        self.log.debug(f"JOBS-000D submit_job() returned with:")
+        self.log.debug(f"            errors: {JOBS.errors}")
+        self.log.debug(f"          response: {response}")
 
         return JOBS.errors, response
 
@@ -530,10 +611,10 @@ class JOBS(C.CLIENT):
         self,
         jobname: str,
         jobid: str,
-        jesname: str = '',
-        correlator: str = '',
+        jesname: str = "",
+        correlator: str = "",
         synchronous: bool = True,
-        verify: bool = True
+        verify: bool = True,
     ):
         """_Hold a JES Job either as synchronous or asynchronous operation._
 
@@ -552,46 +633,56 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f'JOBS-000D hold_job() entered with:')
-        self.log.debug(f'          Job Name: {jobname}')
-        self.log.debug(f'            Job ID: {jobid}')
-        self.log.debug(f'          JES Name: {jesname}')
-        self.log.debug(f'        correlator: {correlator}')
-        self.log.debug(f'            Verify: {verify}')
+        self.log.debug(f"JOBS-000D hold_job() entered with:")
+        self.log.debug(f"          Job Name: {jobname}")
+        self.log.debug(f"            Job ID: {jobid}")
+        self.log.debug(f"          JES Name: {jesname}")
+        self.log.debug(f"        correlator: {correlator}")
+        self.log.debug(f"            Verify: {verify}")
 
         if not verify:
             requests.packages.urllib3.disable_warnings()
 
         url = f"{self.path_to_api}/restjobs/jobs/"
 
-        data = '{ ' + '"request": "hold", '
+        data = "{ " + '"request": "hold", '
 
         if not synchronous:
             data = data + '"version": ' + '"1.0"}'
         else:
             data = data + '"version": ' + '"2.0"}'
 
-        if jesname != '':
-            url = url + f'-{jesname}'
+        if jesname != "":
+            url = url + f"-{jesname}"
 
-        if jobname != '':
-            url = url + f'{jobname}/'
-            if jobid != '':
-                url = url + f'{jobid}'
+        if jobname != "":
+            url = url + f"{jobname}/"
+            if jobid != "":
+                url = url + f"{jobid}"
             else:
                 JOBS.rc = 8
                 self.log.error("JOBS-004E Job Name and Job ID required.")
                 response = None
-                JOBS.errors = {"rc": JOBS.rc, "status_code": "Job Name and Job ID required.", "reason": "J01"}
+                JOBS.errors = {
+                    "rc": JOBS.rc,
+                    "status_code": "Job Name and Job ID required.",
+                    "reason": "J01",
+                }
                 return JOBS.errors, response
         else:
-            if correlator != '':
-                url = url + f'{correlator}'
+            if correlator != "":
+                url = url + f"{correlator}"
             else:
                 JOBS.rc = 8
-                self.log.error("JOBS-005E One of Job Name and Job ID or Correlator required.")
+                self.log.error(
+                    "JOBS-005E One of Job Name and Job ID or Correlator required."
+                )
                 response = None
-                JOBS.errors = {"rc": JOBS.rc, "status_code": "One of Job Name and Job ID or Correlator required.", "reason": "J02"}
+                JOBS.errors = {
+                    "rc": JOBS.rc,
+                    "status_code": "One of Job Name and Job ID or Correlator required.",
+                    "reason": "J02",
+                }
                 return JOBS.errors, response
 
         try:
@@ -599,18 +690,26 @@ class JOBS(C.CLIENT):
         except Exception as e:
             JOBS.rc = 16
             JOBS.errors = {"rc": JOBS.rc, "request_error": e}
-            self.log.critical(f'JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}')
+            self.log.critical(
+                f"JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}"
+            )
             sys.exit(JOBS.rc)
 
         if response.status_code != 200 or response.status_code != 202:
             JOBS.rc = 8
-            self.log.error(f"JOBS-002E An unexpected statuscode {response.status_code} has been received:")
+            self.log.error(
+                f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
+            )
             self.log.error(f"         {response.text}")
-            JOBS.errors = {"rc": JOBS.rc, "status_code": response.status_code, "reason": response.reason}
+            JOBS.errors = {
+                "rc": JOBS.rc,
+                "status_code": response.status_code,
+                "reason": response.reason,
+            }
 
-        self.log.debug(f'JOBS-000D hold_job() returned with:')
-        self.log.debug(f'            errors: {JOBS.errors}')
-        self.log.debug(f'          response: {response}')
+        self.log.debug(f"JOBS-000D hold_job() returned with:")
+        self.log.debug(f"            errors: {JOBS.errors}")
+        self.log.debug(f"          response: {response}")
 
         return JOBS.errors, response
 
@@ -618,10 +717,10 @@ class JOBS(C.CLIENT):
         self,
         jobname: str,
         jobid: str,
-        jesname: str = '',
-        correlator: str = '',
+        jesname: str = "",
+        correlator: str = "",
         synchronous: bool = True,
-        verify: bool = True
+        verify: bool = True,
     ):
         """Release a JES Job either as synchronous or asynchronous operation._
 
@@ -640,46 +739,56 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f'JOBS-000D release_job() entered with:')
-        self.log.debug(f'          Job Name: {jobname}')
-        self.log.debug(f'            Job ID: {jobid}')
-        self.log.debug(f'          JES Name: {jesname}')
-        self.log.debug(f'        correlator: {correlator}')
-        self.log.debug(f'            Verify: {verify}')
+        self.log.debug(f"JOBS-000D release_job() entered with:")
+        self.log.debug(f"          Job Name: {jobname}")
+        self.log.debug(f"            Job ID: {jobid}")
+        self.log.debug(f"          JES Name: {jesname}")
+        self.log.debug(f"        correlator: {correlator}")
+        self.log.debug(f"            Verify: {verify}")
 
         if not verify:
             requests.packages.urllib3.disable_warnings()
 
         url = f"{self.path_to_api}/restjobs/jobs/"
 
-        data = '{ ' + '"request": "release", '
+        data = "{ " + '"request": "release", '
 
         if not synchronous:
             data = data + '"version": ' + '"1.0"}'
         else:
             data = data + '"version": ' + '"2.0"}'
 
-        if jesname != '':
-            url = url + f'-{jesname}'
+        if jesname != "":
+            url = url + f"-{jesname}"
 
-        if jobname != '':
-            url = url + f'{jobname}/'
-            if jobid != '':
-                url = url + f'{jobid}'
+        if jobname != "":
+            url = url + f"{jobname}/"
+            if jobid != "":
+                url = url + f"{jobid}"
             else:
                 JOBS.rc = 8
                 self.log.error("JOBS-004E Job Name and Job ID required.")
                 response = None
-                JOBS.errors = {"rc": JOBS.rc, "status_code": "Job Name and Job ID required.", "reason": "J01"}
+                JOBS.errors = {
+                    "rc": JOBS.rc,
+                    "status_code": "Job Name and Job ID required.",
+                    "reason": "J01",
+                }
                 return JOBS.errors, response
         else:
-            if correlator != '':
-                url = url + f'{correlator}'
+            if correlator != "":
+                url = url + f"{correlator}"
             else:
                 JOBS.rc = 8
-                self.log.error("JOBS-005E One of Job Name and Job ID or Correlator required.")
+                self.log.error(
+                    "JOBS-005E One of Job Name and Job ID or Correlator required."
+                )
                 response = None
-                JOBS.errors = {"rc": JOBS.rc, "status_code": "One of Job Name and Job ID or Correlator required.", "reason": "J02"}
+                JOBS.errors = {
+                    "rc": JOBS.rc,
+                    "status_code": "One of Job Name and Job ID or Correlator required.",
+                    "reason": "J02",
+                }
                 return JOBS.errors, response
 
         try:
@@ -687,18 +796,26 @@ class JOBS(C.CLIENT):
         except Exception as e:
             JOBS.rc = 16
             JOBS.errors = {"rc": JOBS.rc, "request_error": e}
-            self.log.critical(f'JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}')
+            self.log.critical(
+                f"JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}"
+            )
             sys.exit(JOBS.rc)
 
         if response.status_code != 200 or response.status_code != 202:
             JOBS.rc = 8
-            self.log.error(f"JOBS-002E An unexpected statuscode {response.status_code} has been received:")
+            self.log.error(
+                f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
+            )
             self.log.error(f"         {response.text}")
-            JOBS.errors = {"rc": JOBS.rc, "status_code": response.status_code, "reason": response.reason}
+            JOBS.errors = {
+                "rc": JOBS.rc,
+                "status_code": response.status_code,
+                "reason": response.reason,
+            }
 
-        self.log.debug(f'JOBS-000D release_job() returned with:')
-        self.log.debug(f'            errors: {JOBS.errors}')
-        self.log.debug(f'          response: {response}')
+        self.log.debug(f"JOBS-000D release_job() returned with:")
+        self.log.debug(f"            errors: {JOBS.errors}")
+        self.log.debug(f"          response: {response}")
 
         return JOBS.errors, response
 
@@ -707,10 +824,10 @@ class JOBS(C.CLIENT):
         jobname: str,
         jobid: str,
         jobclass: str,
-        jesname: str = '',
-        correlator: str = '',
+        jesname: str = "",
+        correlator: str = "",
         synchronous: bool = True,
-        verify: bool = True
+        verify: bool = True,
     ):
         """Change the job class of a JES Job either as synchronous or asynchronous operation._
 
@@ -730,21 +847,21 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f'JOBS-000D change_job_class() entered with:')
-        self.log.debug(f'          Job Name: {jobname}')
-        self.log.debug(f'            Job ID: {jobid}')
-        self.log.debug(f'          jobclass: {jobclass}')
-        self.log.debug(f'          JES Name: {jesname}')
-        self.log.debug(f'        correlator: {correlator}')
-        self.log.debug(f'            Verify: {verify}')
+        self.log.debug(f"JOBS-000D change_job_class() entered with:")
+        self.log.debug(f"          Job Name: {jobname}")
+        self.log.debug(f"            Job ID: {jobid}")
+        self.log.debug(f"          jobclass: {jobclass}")
+        self.log.debug(f"          JES Name: {jesname}")
+        self.log.debug(f"        correlator: {correlator}")
+        self.log.debug(f"            Verify: {verify}")
 
         if not verify:
             requests.packages.urllib3.disable_warnings()
 
         url = f"{self.path_to_api}/restjobs/jobs/"
 
-        if jobclass != '':
-            data = '{ ' + '"class": ' + f'"{jobclass}", '
+        if jobclass != "":
+            data = "{ " + '"class": ' + f'"{jobclass}", '
             if not synchronous:
                 data = data + '"version": ' + '"1.0"}'
             else:
@@ -753,30 +870,44 @@ class JOBS(C.CLIENT):
             JOBS.rc = 8
             self.log.error("JOBS-007E A new class name is required.")
             response = None
-            JOBS.errors = {"rc": JOBS.rc, "status_code": "A new class name is required.", "reason": "J03"}
+            JOBS.errors = {
+                "rc": JOBS.rc,
+                "status_code": "A new class name is required.",
+                "reason": "J03",
+            }
             return JOBS.errors, response
 
-        if jesname != '':
-            url = url + f'-{jesname}'
+        if jesname != "":
+            url = url + f"-{jesname}"
 
-        if jobname != '':
-            url = url + f'{jobname}/'
-            if jobid != '':
-                url = url + f'{jobid}'
+        if jobname != "":
+            url = url + f"{jobname}/"
+            if jobid != "":
+                url = url + f"{jobid}"
             else:
                 JOBS.rc = 8
                 self.log.error("JOBS-004E Job Name and Job ID required.")
                 response = None
-                JOBS.errors = {"rc": JOBS.rc, "status_code": "Job Name and Job ID required.", "reason": "J01"}
+                JOBS.errors = {
+                    "rc": JOBS.rc,
+                    "status_code": "Job Name and Job ID required.",
+                    "reason": "J01",
+                }
                 return JOBS.errors, response
         else:
-            if correlator != '':
-                url = url + f'{correlator}'
+            if correlator != "":
+                url = url + f"{correlator}"
             else:
                 JOBS.rc = 8
-                self.log.error("JOBS-005E One of Job Name and Job ID or Correlator required.")
+                self.log.error(
+                    "JOBS-005E One of Job Name and Job ID or Correlator required."
+                )
                 response = None
-                JOBS.errors = {"rc": JOBS.rc, "status_code": "One of Job Name and Job ID or Correlator required.", "reason": "J02"}
+                JOBS.errors = {
+                    "rc": JOBS.rc,
+                    "status_code": "One of Job Name and Job ID or Correlator required.",
+                    "reason": "J02",
+                }
                 return JOBS.errors, response
 
         try:
@@ -784,18 +915,26 @@ class JOBS(C.CLIENT):
         except Exception as e:
             JOBS.rc = 16
             JOBS.errors = {"rc": JOBS.rc, "request_error": e}
-            self.log.critical(f'JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}')
+            self.log.critical(
+                f"JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}"
+            )
             sys.exit(JOBS.rc)
 
         if response.status_code != 200 or response.status_code != 202:
             JOBS.rc = 8
-            self.log.error(f"JOBS-002E An unexpected statuscode {response.status_code} has been received:")
+            self.log.error(
+                f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
+            )
             self.log.error(f"         {response.text}")
-            JOBS.errors = {"rc": JOBS.rc, "status_code": response.status_code, "reason": response.reason}
+            JOBS.errors = {
+                "rc": JOBS.rc,
+                "status_code": response.status_code,
+                "reason": response.reason,
+            }
 
-        self.log.debug(f'JOBS-000D change_job_class() returned with:')
-        self.log.debug(f'            errors: {JOBS.errors}')
-        self.log.debug(f'          response: {response}')
+        self.log.debug(f"JOBS-000D change_job_class() returned with:")
+        self.log.debug(f"            errors: {JOBS.errors}")
+        self.log.debug(f"          response: {response}")
 
         return JOBS.errors, response
 
@@ -803,10 +942,10 @@ class JOBS(C.CLIENT):
         self,
         jobname: str,
         jobid: str,
-        jesname: str = '',
-        correlator: str = '',
+        jesname: str = "",
+        correlator: str = "",
         synchronous: bool = True,
-        verify: bool = True
+        verify: bool = True,
     ):
         """Cancel a JES Job either as synchronous or asynchronous operation._
 
@@ -825,45 +964,55 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f'JOBS-000D cancel_job() entered with:')
-        self.log.debug(f'          Job Name: {jobname}')
-        self.log.debug(f'            Job ID: {jobid}')
-        self.log.debug(f'          JES Name: {jesname}')
-        self.log.debug(f'        correlator: {correlator}')
-        self.log.debug(f'            Verify: {verify}')
+        self.log.debug(f"JOBS-000D cancel_job() entered with:")
+        self.log.debug(f"          Job Name: {jobname}")
+        self.log.debug(f"            Job ID: {jobid}")
+        self.log.debug(f"          JES Name: {jesname}")
+        self.log.debug(f"        correlator: {correlator}")
+        self.log.debug(f"            Verify: {verify}")
 
         if not verify:
             requests.packages.urllib3.disable_warnings()
 
         url = f"{self.path_to_api}/restjobs/jobs/"
 
-        data = '{ ' + '"request": "cancel", '
+        data = "{ " + '"request": "cancel", '
         if not synchronous:
             data = data + '"version": ' + '"1.0"}'
         else:
             data = data + '"version": ' + '"2.0"}'
 
-        if jesname != '':
-            url = url + f'-{jesname}'
+        if jesname != "":
+            url = url + f"-{jesname}"
 
-        if jobname != '':
-            url = url + f'{jobname}/'
-            if jobid != '':
-                url = url + f'{jobid}'
+        if jobname != "":
+            url = url + f"{jobname}/"
+            if jobid != "":
+                url = url + f"{jobid}"
             else:
                 JOBS.rc = 8
                 self.log.error("JOBS-004E Job Name and Job ID required.")
                 response = None
-                JOBS.errors = {"rc": JOBS.rc, "status_code": "Job Name and Job ID required.", "reason": "J01"}
+                JOBS.errors = {
+                    "rc": JOBS.rc,
+                    "status_code": "Job Name and Job ID required.",
+                    "reason": "J01",
+                }
                 return JOBS.errors, response
         else:
-            if correlator != '':
-                url = url + f'{correlator}'
+            if correlator != "":
+                url = url + f"{correlator}"
             else:
                 JOBS.rc = 8
-                self.log.error("JOBS-005E One of Job Name and Job ID or Correlator required.")
+                self.log.error(
+                    "JOBS-005E One of Job Name and Job ID or Correlator required."
+                )
                 response = None
-                JOBS.errors = {"rc": JOBS.rc, "status_code": "One of Job Name and Job ID or Correlator required.", "reason": "J02"}
+                JOBS.errors = {
+                    "rc": JOBS.rc,
+                    "status_code": "One of Job Name and Job ID or Correlator required.",
+                    "reason": "J02",
+                }
                 return JOBS.errors, response
 
         try:
@@ -871,18 +1020,26 @@ class JOBS(C.CLIENT):
         except Exception as e:
             JOBS.rc = 16
             JOBS.errors = {"rc": JOBS.rc, "request_error": e}
-            self.log.critical(f'JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}')
+            self.log.critical(
+                f"JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}"
+            )
             sys.exit(JOBS.rc)
 
         if response.status_code != 200 or response.status_code != 202:
             JOBS.rc = 8
-            self.log.error(f"JOBS-002E An unexpected statuscode {response.status_code} has been received:")
+            self.log.error(
+                f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
+            )
             self.log.error(f"         {response.text}")
-            JOBS.errors = {"rc": JOBS.rc, "status_code": response.status_code, "reason": response.reason}
+            JOBS.errors = {
+                "rc": JOBS.rc,
+                "status_code": response.status_code,
+                "reason": response.reason,
+            }
 
-        self.log.debug(f'JOBS-000D cancel_job() returned with:')
-        self.log.debug(f'            errors: {JOBS.errors}')
-        self.log.debug(f'          response: {response}')
+        self.log.debug(f"JOBS-000D cancel_job() returned with:")
+        self.log.debug(f"            errors: {JOBS.errors}")
+        self.log.debug(f"          response: {response}")
 
         return JOBS.errors, response
 
@@ -890,10 +1047,10 @@ class JOBS(C.CLIENT):
         self,
         jobname: str,
         jobid: str,
-        jesname: str = '',
-        correlator: str = '',
+        jesname: str = "",
+        correlator: str = "",
         synchronous: bool = True,
-        verify: bool = True
+        verify: bool = True,
     ):
         """Cancel a JES and purges its output Job either as synchronous or asynchronous operation._
 
@@ -912,12 +1069,12 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f'JOBS-000D cancel_and_purge_job() entered with:')
-        self.log.debug(f'          Job Name: {jobname}')
-        self.log.debug(f'            Job ID: {jobid}')
-        self.log.debug(f'          JES Name: {jesname}')
-        self.log.debug(f'        correlator: {correlator}')
-        self.log.debug(f'            Verify: {verify}')
+        self.log.debug(f"JOBS-000D cancel_and_purge_job() entered with:")
+        self.log.debug(f"          Job Name: {jobname}")
+        self.log.debug(f"            Job ID: {jobid}")
+        self.log.debug(f"          JES Name: {jesname}")
+        self.log.debug(f"        correlator: {correlator}")
+        self.log.debug(f"            Verify: {verify}")
 
         if not verify:
             requests.packages.urllib3.disable_warnings()
@@ -925,31 +1082,41 @@ class JOBS(C.CLIENT):
         url = f"{self.path_to_api}/restjobs/jobs/"
 
         if not synchronous:
-            self.headers['X-IBM-Job-Modify-Version'] = '1.0'
+            self.headers["X-IBM-Job-Modify-Version"] = "1.0"
         else:
-            self.headers['X-IBM-Job-Modify-Version'] = '2.0'
+            self.headers["X-IBM-Job-Modify-Version"] = "2.0"
 
-        if jesname != '':
-            url = url + f'-{jesname}'
+        if jesname != "":
+            url = url + f"-{jesname}"
 
-        if jobname != '':
-            url = url + f'{jobname}/'
-            if jobid != '':
-                url = url + f'{jobid}'
+        if jobname != "":
+            url = url + f"{jobname}/"
+            if jobid != "":
+                url = url + f"{jobid}"
             else:
                 JOBS.rc = 8
                 self.log.error("JOBS-004E Job Name and Job ID required.")
                 response = None
-                JOBS.errors = {"rc": JOBS.rc, "status_code": "Job Name and Job ID required.", "reason": "J01"}
+                JOBS.errors = {
+                    "rc": JOBS.rc,
+                    "status_code": "Job Name and Job ID required.",
+                    "reason": "J01",
+                }
                 return JOBS.errors, response
         else:
-            if correlator != '':
-                url = url + f'{correlator}'
+            if correlator != "":
+                url = url + f"{correlator}"
             else:
                 JOBS.rc = 8
-                self.log.error("JOBS-005E One of Job Name and Job ID or Correlator required.")
+                self.log.error(
+                    "JOBS-005E One of Job Name and Job ID or Correlator required."
+                )
                 response = None
-                JOBS.errors = {"rc": JOBS.rc, "status_code": "One of Job Name and Job ID or Correlator required.", "reason": "J02"}
+                JOBS.errors = {
+                    "rc": JOBS.rc,
+                    "status_code": "One of Job Name and Job ID or Correlator required.",
+                    "reason": "J02",
+                }
                 return JOBS.errors, response
 
         try:
@@ -957,17 +1124,25 @@ class JOBS(C.CLIENT):
         except Exception as e:
             JOBS.rc = 16
             JOBS.errors = {"rc": JOBS.rc, "request_error": e}
-            self.log.critical(f'JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}')
+            self.log.critical(
+                f"JOBS-001S Catched and unexpected error, can not continue {str(JOBS.errors)}"
+            )
             sys.exit(JOBS.rc)
 
         if response.status_code != 200 or response.status_code != 202:
             JOBS.rc = 8
-            self.log.error(f"JOBS-002E An unexpected statuscode {response.status_code} has been received:")
+            self.log.error(
+                f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
+            )
             self.log.error(f"         {response.text}")
-            JOBS.errors = {"rc": JOBS.rc, "status_code": response.status_code, "reason": response.reason}
+            JOBS.errors = {
+                "rc": JOBS.rc,
+                "status_code": response.status_code,
+                "reason": response.reason,
+            }
 
-        self.log.debug(f'JOBS-000D cancel_and_purge_job() returned with:')
-        self.log.debug(f'            errors: {JOBS.errors}')
-        self.log.debug(f'          response: {response}')
+        self.log.debug(f"JOBS-000D cancel_and_purge_job() returned with:")
+        self.log.debug(f"            errors: {JOBS.errors}")
+        self.log.debug(f"          response: {response}")
 
         return JOBS.errors, response

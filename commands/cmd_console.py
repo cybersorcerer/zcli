@@ -1,26 +1,31 @@
 import sys
 import click
 from click_help_colors import HelpColorsGroup, HelpColorsCommand
-from zosapi import tso as t
+from zosapi import console as c
 
 
 # ------------------------------------------------------------------------------#
 # Define the issues group                                                      #
 # ------------------------------------------------------------------------------#
 @click.group(
-    name="tso",
+    name="console",
     cls=HelpColorsGroup,
     help_headers_color="yellow",
     help_options_color="green",
 )
-def tso_cli() -> None:
+def console_cli() -> None:
     """
-    Work with TSO/E address space services on a z/OS system.
+    With the z/OS console commands, you can issue system commands and work with both
+    solicited messages (messages that were issued in response to the command)
+    and unsolicited messages (other messages that might or might not have been issued
+    in response to the command). z/OS console services establish an extended MCS (EMCS)
+    console, which is then used to issue commands and receive messages..
+
     \b
-    Module Name.:  commands.cmd_tso.py
+    Module Name.:  commands.cmd_console.py
     Alias........: None
     Author.......: Ronny Funk
-    Function.....: Work with z/OS TSO/E services
+    Function.....: Work with z/OS Console services
 
     Environment: *ix Terminal CLI / Batch Job
     """
@@ -30,22 +35,20 @@ def tso_cli() -> None:
 # ------------------------------------------------------------------------------#
 # Define the tso command subcommand                                            #
 # ------------------------------------------------------------------------------#
-@tso_cli.command(name="command", cls=HelpColorsCommand, help_options_color="blue")
+@console_cli.command(name="command", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    "--command", "-c", required=True, help="The TSO/E command to issue.", type=str
+    "--command", "-c", required=True, help="The z/OS command to issue.", type=str
 )
 @click.pass_context
 def command(ctx: click.Context, command: str):
     """
-    Issue TSO/E command.
+    Issue z/OS command.
     \b
-    You can use this operation to issue a TSO/E command and
+    You can use this command to issue a z/OS command and
     get a corresponding response.
     """
 
-    verify = ctx.obj["VERIFY"]
-
-    client = t.TSO(
+    client = c.CONSOLE(
         hostname=ctx.obj["HOST_NAME"],
         protocol=ctx.obj["PROTOCOL"],
         port=ctx.obj["PORT"],
@@ -53,7 +56,7 @@ def command(ctx: click.Context, command: str):
         password=ctx.obj["PASSWORD"],
         cert_path=ctx.obj["CERT_PATH"],
     )
-    errors, response = client.issue_tso_command(command, verify=verify)
+    errors, response = client.issue_zos_command(command, verify=ctx.obj["VERIFY"])
     if errors:
         sys.stderr.write(f"{str(errors)}\n")
     else:

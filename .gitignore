@@ -1,3 +1,4 @@
 .venv
 grs.log
 __pycache__
+zcli

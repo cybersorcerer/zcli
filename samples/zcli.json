@@ -1,0 +1,86 @@
+{
+    "profiles": {
+        "zosmf_maint": {
+            "type": "zosmf",
+            "properties": {
+                "host": "192.168.9.39",
+                "rejectUnauthorized": false,
+                "protocol": "https",
+                "encoding": "IBM-1047",
+                "port": 443,
+                "user": "svarfun",
+                "password": "Igel0001"
+            }
+        },
+        "zosmf_tsy02": {
+            "type": "zosmf",
+            "properties": {
+                "host": "192.168.9.66",
+                "rejectUnauthorized": false,
+                "protocol": "https",
+                "encoding": "IBM-1047",
+                "port": 443,
+                "user": "svarfun",
+                "password": "Igel0001"
+            }
+        },
+        "zosmf_pca1": {
+            "type": "zosmf",
+            "properties": {
+                "host": "api.zosmf.mainframe.ruv.de",
+                "rejectUnauthorized": false,
+                "protocol": "https",
+                "encoding": "IBM-1047",
+                "port": 443,
+                "user": "svarfun",
+                "password": "Igel0001"
+            }
+        },
+        "dev": {
+            "type": "zosmf",
+            "properties": {
+                "host": "192.168.9.87",
+                "rejectUnauthorized": false,
+                "protocol": "https",
+                "encoding": "IBM-1047",
+                "port": 443,
+                "user": "svarfun",
+                "password": "Igel0001"
+            }
+        }
+    },
+    "defaults": [
+        {
+            "tso": {
+                "properties": {
+                    "account": "ACCT#",
+                    "logonProcedure": "IZUFPROC",
+                    "characterSet": "697",
+                    "codePage": "1047",
+                    "columns": 80,
+                    "regionSize": 8192,
+                    "rows": 24
+                }
+            },
+            "software": {
+                "properties": {
+                    "csi": "SMPE.GLOBAL.CSI"
+                }
+            },
+            "profiles": [
+                {
+                    "zosmf": "zosmf_maint"
+                }
+            ],
+            "zcli": {
+                "properties": {
+                    "files_cache": ".local/zcli/.cache/files",
+                    "dataset_cache": ".local/zcli/.cache/datasets",
+                    "jobs_cache": ".local/zcli/.cache/jobs",
+                    "config_dir": ".config/zcli",
+                    "cert_path": "/usr/lpp/road4z/ssl/cacert.pem"
+                }
+            }
+        }
+    ]
+}
