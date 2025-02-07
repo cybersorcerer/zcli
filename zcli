@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+cd "<PATH_TO_ZCLI_DIR>"
+[[ "$VIRTUAL_ENV" == "" ]]; INVENV=$?
+if [ "$INVENV" -eq "0" ]; then
+  source venv/bin/activate
+fi
+./zcli "$@"
