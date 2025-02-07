@@ -1,7 +1,6 @@
 
 import requests
 import sys
-from typing import Tuple
 
 from zosapi import client as C
 
@@ -32,8 +31,8 @@ class NOTIFICATIONS(C.CLIENT):
             sys.exit(NOTIFICATIONS.rc)
 
         if response.status_code != 200:
-            self.log.error(f"NOTIFICATIONS-002E An unexpected statuscode {response.status_code} has been received")
-            self.log.error(f"           {response.text}")
+            self.log.debug(f"NOTIFICATIONS-002E An unexpected statuscode {response.status_code} has been received")
+            self.log.debug(f"           {response.text}")
             NOTIFICATIONS.rc = 8
             NOTIFICATIONS.errors = {"rc": NOTIFICATIONS.rc, "status_code": response.status_code, "reason": response.reason}
 
@@ -73,8 +72,8 @@ class NOTIFICATIONS(C.CLIENT):
             sys.exit(NOTIFICATIONS.rc)
 
         if response.status_code != 200:
-            self.log.error(f"NOTIFICATIONS-002E An unexpected statuscode {response.status_code} has been received")
-            self.log.error(f"                  {response.text}")
+            self.log.debug(f"NOTIFICATIONS-002E An unexpected statuscode {response.status_code} has been received")
+            self.log.debug(f"                  {response.text}")
             NOTIFICATIONS.rc = 8
             NOTIFICATIONS.errors = {"rc": NOTIFICATIONS.rc, "status_code": response.status_code, "reason": response.reason}
 

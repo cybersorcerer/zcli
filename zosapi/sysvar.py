@@ -25,7 +25,6 @@ class SYSVAR(C.CLIENT):
             dict: Dictionary with errors or empty dict.
             list: Command response or in case of an error empty list.
         """
-        variables: list = []
         version: str = "1.0"
         url = (
             f"{self.path_to_api}/variables/rest/{version}/systems/local?source=variable"
@@ -44,10 +43,10 @@ class SYSVAR(C.CLIENT):
             sys.exit(SYSVAR.rc)
 
         if response.status_code != 200:
-            self.log.error(
+            self.log.debug(
                 f"SYSVAR-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"           {response.text}")
+            self.log.debug(f"           {response.text}")
             SYSVAR.rc = 8
             SYSVAR.errors = {
                 "rc": SYSVAR.rc,

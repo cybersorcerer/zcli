@@ -17,7 +17,6 @@
     "DEBUG": true
   },
 
-  "reportMissingImports": "error",
   "reportMissingTypeStubs": false,
 
   "pythonVersion": "3.12",

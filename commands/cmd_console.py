@@ -15,6 +15,8 @@ from zosapi import console as c
 )
 def console_cli() -> None:
     """
+    Issue z/OS console commands.
+    \b
     With the z/OS console commands, you can issue system commands and work with both
     solicited messages (messages that were issued in response to the command)
     and unsolicited messages (other messages that might or might not have been issued

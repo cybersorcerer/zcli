@@ -65,7 +65,7 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f"JOBS-000D get_job_list() entered with:")
+        self.log.debug("JOBS-000D get_job_list() entered with:")
         self.log.debug(f"                owner: {owner}")
         self.log.debug(f"               prefix: {prefix}")
         self.log.debug(f"            exec_data: {exec_data}")
@@ -90,10 +90,10 @@ class JOBS(C.CLIENT):
             sys.exit(JOBS.rc)
 
         if response.status_code != 200:
-            self.log.error(
+            self.log.debug(
                 f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"         {response.text}")
+            self.log.debug(f"         {response.text}")
             JOBS.errors = {
                 "rc": JOBS.rc,
                 "status_code": response.status_code,
@@ -101,7 +101,7 @@ class JOBS(C.CLIENT):
             }
             JOBS.rc = 8
 
-        self.log.debug(f"JOBS-000D get_job_list() returned with:")
+        self.log.debug("JOBS-000D get_job_list() returned with:")
         self.log.debug(f"            errors: {JOBS.errors}")
         self.log.debug(f"          response: {response}")
 
@@ -131,7 +131,7 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f"JOBS-000D get_job_by_jobname_jobid() entered with:")
+        self.log.debug("JOBS-000D get_job_by_jobname_jobid() entered with:")
         self.log.debug(f"           Job Name: {jobname}")
         self.log.debug(f"             Job ID: {jobid}")
         self.log.debug(f"          Step Data: {stepdata}")
@@ -156,10 +156,10 @@ class JOBS(C.CLIENT):
             sys.exit(JOBS.rc)
 
         if response.status_code != 200:
-            self.log.error(
+            self.log.debug(
                 f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"         {response.text}")
+            self.log.debug(f"         {response.text}")
             JOBS.rc = 8
             JOBS.errors = {
                 "rc": JOBS.rc,
@@ -167,7 +167,7 @@ class JOBS(C.CLIENT):
                 "reason": response.reason,
             }
 
-        self.log.debug(f"JOBS-000D get_job_by_jobname_jobid() returned with:")
+        self.log.debug("JOBS-000D get_job_by_jobname_jobid() returned with:")
         self.log.debug(f"            errors: {JOBS.errors}")
         self.log.debug(f"          response: {response.json()}")
 
@@ -195,7 +195,7 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f"JOBS-000D get_job_by_job_correlator() entered with:")
+        self.log.debug("JOBS-000D get_job_by_job_correlator() entered with:")
         self.log.debug(f"          correlator: {correlator}")
         self.log.debug(f"           Step Data: {stepdata}")
         self.log.debug(f"               Files: {files}")
@@ -217,17 +217,17 @@ class JOBS(C.CLIENT):
 
         if response.status_code != 200:
             JOBS.rc = 8
-            self.log.error(
+            self.log.debug(
                 f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"         {response.text}")
+            self.log.debug(f"         {response.text}")
             JOBS.errors = {
                 "rc": JOBS.rc,
                 "status_code": response.status_code,
                 "reason": response.reason,
             }
 
-        self.log.debug(f"JOBS-000D get_job_by_job_correlator() returned with:")
+        self.log.debug("JOBS-000D get_job_by_job_correlator() returned with:")
         self.log.debug(f"            errors: {JOBS.errors}")
         self.log.debug(f"          response: {response.json()}")
 
@@ -250,7 +250,7 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f"JOBS-000D get_files_by_jobname_jobid() entered with:")
+        self.log.debug("JOBS-000D get_files_by_jobname_jobid() entered with:")
         self.log.debug(f"          Job Name: {jobname}")
         self.log.debug(f"            Job ID: {jobid}")
         self.log.debug(f"            Verify: {verify}")
@@ -272,17 +272,17 @@ class JOBS(C.CLIENT):
 
         if response.status_code != 200:
             JOBS.rc = 8
-            self.log.error(
+            self.log.debug(
                 f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"         {response.text}")
+            self.log.debug(f"         {response.text}")
             JOBS.errors = {
                 "rc": JOBS.rc,
                 "status_code": response.status_code,
                 "reason": response.reason,
             }
 
-        self.log.debug(f"JOBS-000D get_files_by_jobname_jobid() returned with:")
+        self.log.debug("JOBS-000D get_files_by_jobname_jobid() returned with:")
         self.log.debug(f"            errors: {JOBS.errors}")
         self.log.debug(f"          response: {response.json()}")
 
@@ -303,7 +303,7 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f"JOBS-000D get_files_by_job_correlator() entered with:")
+        self.log.debug("JOBS-000D get_files_by_job_correlator() entered with:")
         self.log.debug(f"          correlator: {correlator}")
         self.log.debug(f"              Verify: {verify}")
 
@@ -324,17 +324,17 @@ class JOBS(C.CLIENT):
 
         if response.status_code == 200:
             JOBS.rc = 8
-            self.log.error(
+            self.log.debug(
                 f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"         {response.text}")
+            self.log.debug(f"         {response.text}")
             JOBS.errors = {
                 "rc": JOBS.rc,
                 "status_code": response.status_code,
                 "reason": response.reason,
             }
 
-        self.log.debug(f"JOBS-000D get_files_by_job_correlator() returned with:")
+        self.log.debug("JOBS-000D get_files_by_job_correlator() returned with:")
         self.log.debug(f"            errors: {JOBS.errors}")
         self.log.debug(f"          response: {response.json()}")
 
@@ -368,7 +368,7 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f"JOBS-000D get_job_file_by_id() entered with:")
+        self.log.debug("JOBS-000D get_job_file_by_id() entered with:")
         self.log.debug(f"                    name: {jobname}")
         self.log.debug(f"                   jobid: {jobid}")
         self.log.debug(f"          job-correlator: {correlator}")
@@ -435,17 +435,17 @@ class JOBS(C.CLIENT):
 
         if response.status_code != 200:
             JOBS.rc = 8
-            self.log.error(
+            self.log.debug(
                 f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"         {response.text}")
+            self.log.debug(f"         {response.text}")
             JOBS.errors = {
                 "rc": JOBS.rc,
                 "status_code": response.status_code,
                 "reason": response.reason,
             }
 
-        self.log.debug(f"JOBS-000D get_job_file_by_id() returned with:")
+        self.log.debug("JOBS-000D get_job_file_by_id() returned with:")
         self.log.debug(f"            errors: {JOBS.errors}")
         self.log.debug(f"          response: {response}")
 
@@ -475,7 +475,7 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f"JOBS-000D get_job_jcl() entered with:")
+        self.log.debug("JOBS-000D get_job_jcl() entered with:")
         self.log.debug(f"                    name: {jobname}")
         self.log.debug(f"                   jobid: {jobid}")
         self.log.debug(f"          job-correlator: {correlator}")
@@ -530,17 +530,17 @@ class JOBS(C.CLIENT):
 
         if response.status_code != 200:
             JOBS.rc = 8
-            self.log.error(
+            self.log.debug(
                 f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"         {response.text}")
+            self.log.debug(f"         {response.text}")
             JOBS.errors = {
                 "rc": JOBS.rc,
                 "status_code": response.status_code,
                 "reason": response.reason,
             }
 
-        self.log.debug(f"JOBS-000D get_job_jcl() returned with:")
+        self.log.debug("JOBS-000D get_job_jcl() returned with:")
         self.log.debug(f"            errors: {JOBS.errors}")
         self.log.debug(f"          response: {response}")
 
@@ -561,7 +561,7 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f"JOBS-000D submit_job() entered with:")
+        self.log.debug("JOBS-000D submit_job() entered with:")
         self.log.debug(f"                   File Name: {file_name}")
         self.log.debug(f"          Secondary JES Name: {jes_name}")
         self.log.debug(f"                      Verify: {verify}")
@@ -591,17 +591,17 @@ class JOBS(C.CLIENT):
 
         if response.status_code != 201:
             JOBS.rc = 8
-            self.log.error(
+            self.log.debug(
                 f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"         {response.text}")
+            self.log.debug(f"         {response.text}")
             JOBS.errors = {
                 "rc": JOBS.rc,
                 "status_code": response.status_code,
                 "reason": response.reason,
             }
 
-        self.log.debug(f"JOBS-000D submit_job() returned with:")
+        self.log.debug("JOBS-000D submit_job() returned with:")
         self.log.debug(f"            errors: {JOBS.errors}")
         self.log.debug(f"          response: {response}")
 
@@ -633,7 +633,7 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f"JOBS-000D hold_job() entered with:")
+        self.log.debug("JOBS-000D hold_job() entered with:")
         self.log.debug(f"          Job Name: {jobname}")
         self.log.debug(f"            Job ID: {jobid}")
         self.log.debug(f"          JES Name: {jesname}")
@@ -697,17 +697,17 @@ class JOBS(C.CLIENT):
 
         if response.status_code != 200 or response.status_code != 202:
             JOBS.rc = 8
-            self.log.error(
+            self.log.debug(
                 f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"         {response.text}")
+            self.log.debug(f"         {response.text}")
             JOBS.errors = {
                 "rc": JOBS.rc,
                 "status_code": response.status_code,
                 "reason": response.reason,
             }
 
-        self.log.debug(f"JOBS-000D hold_job() returned with:")
+        self.log.debug("JOBS-000D hold_job() returned with:")
         self.log.debug(f"            errors: {JOBS.errors}")
         self.log.debug(f"          response: {response}")
 
@@ -739,7 +739,7 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f"JOBS-000D release_job() entered with:")
+        self.log.debug("JOBS-000D release_job() entered with:")
         self.log.debug(f"          Job Name: {jobname}")
         self.log.debug(f"            Job ID: {jobid}")
         self.log.debug(f"          JES Name: {jesname}")
@@ -803,17 +803,17 @@ class JOBS(C.CLIENT):
 
         if response.status_code != 200 or response.status_code != 202:
             JOBS.rc = 8
-            self.log.error(
+            self.log.debug(
                 f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"         {response.text}")
+            self.log.debug(f"         {response.text}")
             JOBS.errors = {
                 "rc": JOBS.rc,
                 "status_code": response.status_code,
                 "reason": response.reason,
             }
 
-        self.log.debug(f"JOBS-000D release_job() returned with:")
+        self.log.debug("JOBS-000D release_job() returned with:")
         self.log.debug(f"            errors: {JOBS.errors}")
         self.log.debug(f"          response: {response}")
 
@@ -847,7 +847,7 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f"JOBS-000D change_job_class() entered with:")
+        self.log.debug("JOBS-000D change_job_class() entered with:")
         self.log.debug(f"          Job Name: {jobname}")
         self.log.debug(f"            Job ID: {jobid}")
         self.log.debug(f"          jobclass: {jobclass}")
@@ -922,17 +922,17 @@ class JOBS(C.CLIENT):
 
         if response.status_code != 200 or response.status_code != 202:
             JOBS.rc = 8
-            self.log.error(
+            self.log.debug(
                 f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"         {response.text}")
+            self.log.debug(f"         {response.text}")
             JOBS.errors = {
                 "rc": JOBS.rc,
                 "status_code": response.status_code,
                 "reason": response.reason,
             }
 
-        self.log.debug(f"JOBS-000D change_job_class() returned with:")
+        self.log.debug("JOBS-000D change_job_class() returned with:")
         self.log.debug(f"            errors: {JOBS.errors}")
         self.log.debug(f"          response: {response}")
 
@@ -964,7 +964,7 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f"JOBS-000D cancel_job() entered with:")
+        self.log.debug("JOBS-000D cancel_job() entered with:")
         self.log.debug(f"          Job Name: {jobname}")
         self.log.debug(f"            Job ID: {jobid}")
         self.log.debug(f"          JES Name: {jesname}")
@@ -1027,17 +1027,17 @@ class JOBS(C.CLIENT):
 
         if response.status_code != 200 or response.status_code != 202:
             JOBS.rc = 8
-            self.log.error(
+            self.log.debug(
                 f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"         {response.text}")
+            self.log.debug(f"         {response.text}")
             JOBS.errors = {
                 "rc": JOBS.rc,
                 "status_code": response.status_code,
                 "reason": response.reason,
             }
 
-        self.log.debug(f"JOBS-000D cancel_job() returned with:")
+        self.log.debug("JOBS-000D cancel_job() returned with:")
         self.log.debug(f"            errors: {JOBS.errors}")
         self.log.debug(f"          response: {response}")
 
@@ -1069,7 +1069,7 @@ class JOBS(C.CLIENT):
         JOBS.rc: int = 0
         JOBS.errors = {}
 
-        self.log.debug(f"JOBS-000D cancel_and_purge_job() entered with:")
+        self.log.debug("JOBS-000D cancel_and_purge_job() entered with:")
         self.log.debug(f"          Job Name: {jobname}")
         self.log.debug(f"            Job ID: {jobid}")
         self.log.debug(f"          JES Name: {jesname}")
@@ -1131,18 +1131,18 @@ class JOBS(C.CLIENT):
 
         if response.status_code != 200 or response.status_code != 202:
             JOBS.rc = 8
-            self.log.error(
+            self.log.debug(
                 f"JOBS-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"         {response.text}")
+            self.log.debug(f"         {response.text}")
             JOBS.errors = {
                 "rc": JOBS.rc,
                 "status_code": response.status_code,
                 "reason": response.reason,
             }
 
-        self.log.debug(f"JOBS-000D cancel_and_purge_job() returned with:")
-        self.log.debug(f"            errors: {JOBS.errors}")
-        self.log.debug(f"          response: {response}")
+        self.log.debug("JOBS-000D cancel_and_purge_job() returned with:")
+        self.log.debug("            errors: {JOBS.errors}")
+        self.log.debug("          response: {response}")
 
         return JOBS.errors, response

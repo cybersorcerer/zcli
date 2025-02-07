@@ -39,10 +39,10 @@ class TSO(C.CLIENT):
             sys.exit(TSO.rc)
 
         if response.status_code != 200:
-            self.log.error(
+            self.log.debug(
                 f"TSO-002E An unexpected statuscode {response.status_code} has been received"
             )
-            self.log.error(f"           {response.text}")
+            self.log.debug(f"           {response.text}")
             TSO.rc = 8
             TSO.errors = {
                 "rc": {TSO.rc},

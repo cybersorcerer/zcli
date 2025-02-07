@@ -50,10 +50,10 @@ class DATASETS(d.CLIENT):
             sys.exit(DATASETS.rc)
 
         if response.status_code != 200:
-            self.log.error(
+            self.log.debug(
                 f"DATASETS-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"             {response.text}")
+            self.log.debug(f"             {response.text}")
             DATASETS.rc = 8
             DATASETS.errors = {
                 "rc": DATASETS.rc,
@@ -101,10 +101,10 @@ class DATASETS(d.CLIENT):
             sys.exit(DATASETS.rc)
 
         if response.status_code != 200:
-            self.log.error(
+            self.log.debug(
                 f"DATASETS-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"             {response.text}")
+            self.log.debug(f"             {response.text}")
             DATASETS.rc = 8
             DATASETS.errors = {
                 "rc": DATASETS.rc,
@@ -170,10 +170,10 @@ class DATASETS(d.CLIENT):
             sys.exit(DATASETS.rc)
 
         if response.status_code != 200:
-            self.log.error(
+            self.log.debug(
                 f"DATASETS-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"             {response.text}")
+            self.log.debug(f"             {response.text}")
             DATASETS.rc = 8
             DATASETS.errors = {
                 "rc": DATASETS.rc,
@@ -270,10 +270,10 @@ class DATASETS(d.CLIENT):
             sys.exit(DATASETS.rc)
 
         if response.status_code != 201:
-            self.log.error(
+            self.log.debug(
                 f"DATASETS-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"             {response.text}")
+            self.log.debug(f"             {response.text}")
             DATASETS.rc = 8
             DATASETS.errors = {
                 "rc": DATASETS.rc,
@@ -283,40 +283,121 @@ class DATASETS(d.CLIENT):
 
         return DATASETS.errors, response
 
+    def zosapi_datasets_delete(
+        self,
+        ds_name: str,
+        member_name: str,
+        volser: str,
+        verify: bool = True,
+    ):
+        """
+        Delete a z/OS sequential/partitioned Dataset/member
 
-def zosapi_datasets_delete(
-    self,
-    ds_name: str,
-    member_name: str,
-    volser: str,
-    verify: bool = True,
-):
-    url = f"{self.path_to_api}/restfiles/ds/{ds_name}"
-    
-    if not verify:
-        requests.packages.urllib3.disable_warnings()
-        
-    self.headers["Content-Type"] = "application/json"
+        Args:
+            ds_name (str): Dataset name
+            volser (str): Volume serial
+            member_name (str): Member name of a PDS or PDS/E
+            verify (bool, optional): _description_. Defaults to True.
 
-    try:
-        response = requests.delete(
-            url, headers=self.headers, json=payload, verify=verify
-        )
-    except Exception as e:
-        DATASETS.rc = 16
-        DATASETS.errors = {"rc": DATASETS.rc, "request_error": e}
-        self.log.critical(
-            f"DATASETS-001S Catched an unexpected exception, can not continue {str(DATASETS.errors)}"
-        )
-        sys.exit(DATASETS.rc)
-    if response.status_code != 201:
-        self.log.error(
-            f"DATASETS-002E An unexpected statuscode {response.status_code} has been received:"
-        )
-        self.log.error(f"             {response.text}")
-        DATASETS.rc = 8
-        DATASETS.errors = {
-            "rc": DATASETS.rc,
-            "status_code": response.status_code,
-            "reason": response.reason,
-        }
+        Returns:
+            error: Dictionary with return code and error messages if any.
+            response: Command response or in case of an error empty list.
+        """
+        url = f"{self.path_to_api}/restfiles/ds/"
+
+        if volser != "":
+            url = url + f"-({volser})/"
+
+        url = url + ds_name
+
+        if member_name != "":
+            url = url + f"/{member_name}"
+
+        if not verify:
+            requests.packages.urllib3.disable_warnings()
+
+        self.headers["Content-Type"] = "application/json"
+
+        try:
+            response = requests.delete(url, headers=self.headers, verify=verify)
+        except Exception as e:
+            DATASETS.rc = 16
+            DATASETS.errors = {"rc": DATASETS.rc, "request_error": e}
+            self.log.critical(
+                f"DATASETS-001S Catched an unexpected exception, can not continue {str(DATASETS.errors)}"
+            )
+            sys.exit(DATASETS.rc)
+        if response.status_code != 201:
+            self.log.debug(
+                f"DATASETS-002E An unexpected statuscode {response.status_code} has been received:"
+            )
+            self.log.debug(f"             {response.text}")
+            DATASETS.rc = 8
+            DATASETS.errors = {
+                "rc": DATASETS.rc,
+                "status_code": response.status_code,
+                "reason": response.reason,
+            }
+
+        return DATASETS.errors, response
+
+    def zosapi_datasets_utils(
+        self,
+        utility_name: str,
+        ds_name: str,
+        to_ds_name: str,
+        member_name: str,
+        to_member_name: str,
+        volser: str,
+        wait: bool,
+        purge: bool,
+        excl: bool,
+        verify: bool = True,
+    ):
+        url = f"{self.path_to_api}/restfiles/ds/"
+
+        if not verify:
+            requests.packages.urllib3.disable_warnings()
+
+        self.headers["Content-Type"] = "application/json"
+
+        data = "{ " + '"request": ' + '"' + f"{utility_name}" + '", {'
+        if (
+            utility_name == "hrecall"
+            or utility_name == "hmigrate"
+            or utility_name == "hdelete"
+        ):
+            url = url + ds_name
+            data = data + '"wait": "' + str(wait).lower() + '"} '
+
+            if utility_name == "hdelete":
+                data = data + '"purge": ' + str(purge).lower()
+
+        elif utility_name == "rename":
+            pass
+
+        data = data + " }"
+        self.log.debug(f"DATASETS-000D Request body: {data}")
+
+        try:
+            response = requests.put(url, headers=self.headers, data=data, verify=verify)
+        except Exception as e:
+            DATASETS.rc = 16
+            DATASETS.errors = {"rc": DATASETS.rc, "request_error": e}
+            self.log.critical(
+                f"DATASETS-001S Catched an unexpected exception, can not continue {str(DATASETS.errors)}"
+            )
+            sys.exit(DATASETS.rc)
+        if response.status_code != 200:
+            self.log.debug(
+                f"DATASETS-002E Ans unexpected statuscode {response.status_code} has been received:"
+            )
+            self.log.debug(f"             {response.text}")
+            DATASETS.rc = 8
+            DATASETS.errors = {
+                "rc": DATASETS.rc,
+                "status_code": response.status_code,
+                "reason": response.reason,
+            }
+
+        return DATASETS.errors, response

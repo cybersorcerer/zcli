@@ -99,7 +99,7 @@ class SMS(C.CLIENT):
                 data = add_instance.read()
         else:
             SMS.rc = 16
-            self.log.error(f"SMS-007E File name is required, can not continue")
+            self.log.error("SMS-007E File name is required, can not continue")
             response = None
             SMS.errors = {
                 "rc": SMS.rc,
@@ -121,10 +121,10 @@ class SMS(C.CLIENT):
             sys.exit(SMS.rc)
 
         if response.status_code != 202:
-            self.log.error(
+            self.log.debug(
                 f"SMS-002E An unexpected statuscode {response.status_code} has been received"
             )
-            self.log.error(f"        {response.text}")
+            self.log.debug(f"        {response.text}")
             SMS.rc = 8
             SMS.errors = {
                 "rc": SMS.rc,
@@ -205,7 +205,7 @@ class SMS(C.CLIENT):
                 data = export_instance.read()
         else:
             SMS.rc = 16
-            self.log.error(f"SMS-007E File name is required, can not continue")
+            self.log.error("SMS-007E File name is required, can not continue")
             response = None
             SMS.errors = {
                 "rc": SMS.rc,
@@ -227,10 +227,10 @@ class SMS(C.CLIENT):
             sys.exit(SMS.rc)
 
         if response.status_code != 202:
-            self.log.error(
+            self.log.debug(
                 f"SMS-002E An unexpected statuscode {response.status_code} has been received"
             )
-            self.log.error(f"        {response.text}")
+            self.log.debug(f"        {response.text}")
             SMS.rc = 8
             SMS.errors = {
                 "rc": SMS.rc,
@@ -282,7 +282,6 @@ class SMS(C.CLIENT):
     ):
         SMS.rc: int = 0
         SMS.errors = {}
-        st: str = "running"
 
         if not verify:
             requests.packages.urllib3.disable_warnings()
@@ -314,10 +313,10 @@ class SMS(C.CLIENT):
             sys.exit(SMS.rc)
 
         if response.status_code != 200:
-            self.log.error(
+            self.log.debug(
                 f"SMS-002E An unexpected statuscode {response.status_code} has been received"
             )
-            self.log.error(f"        {response.text}")
+            self.log.debug(f"        {response.text}")
             SMS.rc = 8
             SMS.errors = {
                 "rc": SMS.rc,
@@ -350,10 +349,10 @@ class SMS(C.CLIENT):
             sys.exit(SMS.rc)
 
         if response.status_code != 200:
-            self.log.error(
+            self.log.debug(
                 f"SMS-002E An unexpected statuscode {response.status_code} has been received"
             )
-            self.log.error(f"        {response.text}")
+            self.log.debug(f"        {response.text}")
             SMS.rc = 8
             SMS.errors = {
                 "rc": SMS.rc,
@@ -402,10 +401,10 @@ class SMS(C.CLIENT):
             sys.exit(SMS.rc)
 
         if response.status_code != 200:
-            self.log.error(
+            self.log.debug(
                 f"SMS-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"        {response.text}")
+            self.log.debug(f"        {response.text}")
             SMS.rc = 8
             SMS.errors = {
                 "rc": SMS.rc,
@@ -454,10 +453,10 @@ class SMS(C.CLIENT):
             sys.exit(SMS.rc)
 
         if response.status_code != 200:
-            self.log.error(
+            self.log.debug(
                 f"SMS-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"        {response.text}")
+            self.log.debug(f"        {response.text}")
             SMS.rc = 8
             SMS.errors = {
                 "rc": SMS.rc,
@@ -500,10 +499,10 @@ class SMS(C.CLIENT):
             sys.exit(SMS.rc)
 
         if response.status_code != 200:
-            self.log.error(
+            self.log.debug(
                 f"SMS-002E An unexpected statuscode {response.status_code} has been received"
             )
-            self.log.error(f"        {response.text}")
+            self.log.debug(f"        {response.text}")
             SMS.rc = 8
             SMS.errors = {
                 "rc": SMS.rc,
@@ -560,10 +559,10 @@ class SMS(C.CLIENT):
             sys.exit(SMS.rc)
 
         if response.status_code != 202:
-            self.log.error(
+            self.log.debug(
                 f"SMS-002E An unexpected statuscode {response.status_code} has been received"
             )
-            self.log.error(f"        {response.text}")
+            self.log.debug(f"        {response.text}")
             SMS.rc = 8
             SMS.errors = {
                 "rc": SMS.rc,
@@ -653,10 +652,10 @@ class SMS(C.CLIENT):
             sys.exit(SMS.rc)
 
         if response.status_code != 202:
-            self.log.error(
+            self.log.debug(
                 f"SMS-002E An unexpected statuscode {response.status_code} has been received"
             )
-            self.log.error(f"        {response.text}")
+            self.log.debug(f"        {response.text}")
             SMS.rc = 8
             SMS.errors = {
                 "rc": SMS.rc,
@@ -756,10 +755,10 @@ class SMS(C.CLIENT):
             sys.exit(SMS.rc)
 
         if response.status_code != 202:
-            self.log.error(
+            self.log.debug(
                 f"SMS-002E An unexpected statuscode {response.status_code} has been received"
             )
-            self.log.error(f"        {response.text}")
+            self.log.debug(f"        {response.text}")
             SMS.rc = 8
             SMS.errors = {
                 "rc": SMS.rc,
@@ -907,10 +906,10 @@ class SMS(C.CLIENT):
                 SMS.rc = 8
 
         else:
-            self.log.error(
+            self.log.debug(
                 f"SMS-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"        {response.text}")
+            self.log.debug(f"        {response.text}")
             SMS.errors = {
                 "rc": SMS.rc,
                 "status_code": response.status_code,

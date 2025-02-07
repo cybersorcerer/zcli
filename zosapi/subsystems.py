@@ -1,6 +1,5 @@
 import requests
 import sys
-from typing import Tuple
 
 from zosapi import client as C
 
@@ -36,8 +35,8 @@ class SUBSYSTEMS(C.CLIENT):
             sys.exit(SUBSYSTEMS.rc)
 
         if response.status_code != 200:
-            self.log.error(f"SUBSYS-002E An unexpected statuscode {response.status_code} has been received")
-            self.log.error(f"           {response.text}")
+            self.log.debug(f"SUBSYS-002E An unexpected statuscode {response.status_code} has been received")
+            self.log.debug(f"           {response.text}")
             SUBSYSTEMS.rc = 8
             SUBSYSTEMS.errors = {"rc": SUBSYSTEMS.rc, "status_code": response.status_code, "reason": response.reason}
 

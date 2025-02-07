@@ -1,51 +1,15 @@
 {
     "profiles": {
-        "zosmf_maint": {
+        "<profile_name>": {
             "type": "zosmf",
             "properties": {
-                "host": "192.168.9.39",
+                "host": "<hostname/ip-address>",
                 "rejectUnauthorized": false,
                 "protocol": "https",
                 "encoding": "IBM-1047",
                 "port": 443,
-                "user": "svarfun",
-                "password": "Igel0001"
-            }
-        },
-        "zosmf_tsy02": {
-            "type": "zosmf",
-            "properties": {
-                "host": "192.168.9.66",
-                "rejectUnauthorized": false,
-                "protocol": "https",
-                "encoding": "IBM-1047",
-                "port": 443,
-                "user": "svarfun",
-                "password": "Igel0001"
-            }
-        },
-        "zosmf_pca1": {
-            "type": "zosmf",
-            "properties": {
-                "host": "api.zosmf.mainframe.ruv.de",
-                "rejectUnauthorized": false,
-                "protocol": "https",
-                "encoding": "IBM-1047",
-                "port": 443,
-                "user": "svarfun",
-                "password": "Igel0001"
-            }
-        },
-        "dev": {
-            "type": "zosmf",
-            "properties": {
-                "host": "192.168.9.87",
-                "rejectUnauthorized": false,
-                "protocol": "https",
-                "encoding": "IBM-1047",
-                "port": 443,
-                "user": "svarfun",
-                "password": "Igel0001"
+                "user": "RACF USER-ID",
+                "password": "RACF PASSWORD"
             }
         }
     },
@@ -69,7 +33,7 @@
             },
             "profiles": [
                 {
-                    "zosmf": "zosmf_maint"
+                    "zosmf": "<profile_name>"
                 }
             ],
             "zcli": {
@@ -78,7 +42,7 @@
                     "dataset_cache": ".local/zcli/.cache/datasets",
                     "jobs_cache": ".local/zcli/.cache/jobs",
                     "config_dir": ".config/zcli",
-                    "cert_path": "/usr/lpp/road4z/ssl/cacert.pem"
+                    "cert_path": "<path_to_cert_file>"
                 }
             }
         }

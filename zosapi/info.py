@@ -1,6 +1,5 @@
 import sys
 import requests
-from typing import Tuple
 
 from zosapi import client as i
 
@@ -34,8 +33,8 @@ class INFO(i.CLIENT):
             sys.exit(INFO.rc)
 
         if response.status_code != 200:
-            self.log.error(f"INFO-002E An unexpected statuscode {response.status_code} has been received:")
-            self.log.error(f"           {response.text}")
+            self.log.debug(f"INFO-002E An unexpected statuscode {response.status_code} has been received:")
+            self.log.debug(f"           {response.text}")
             INFO.rc = 8
             INFO.errors = {"rc": INFO.rc, "status_code": response.status_code, "reason": response.reason}
 

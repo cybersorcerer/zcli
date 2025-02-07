@@ -39,8 +39,8 @@ class RTD(r.CLIENT):
             sys.exit(RTD.rc)
 
         if response.status_code != 200:
-            self.log.error(f"RTD-002E An unexpected statuscode {response.status_code} has been received:")
-            self.log.error(f"           {response.text}")
+            self.log.debug(f"RTD-002E An unexpected statuscode {response.status_code} has been received:")
+            self.log.debug(f"           {response.text}")
             RTD.rc = 8
             RTD.errors = {"rc": RTD.rc, "status_code": response.status_code, "reason": response.reason}
 

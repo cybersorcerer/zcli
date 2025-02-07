@@ -21,6 +21,7 @@ from commands.cmd_utils import (
 
 from commands.cmd_datasets import datasets_cli
 from commands.cmd_files import files_cli
+from commands.cmd_filesystems import filesystems_cli
 from commands.cmd_info import info
 from commands.cmd_jobs import jobs_cli
 from commands.cmd_rtd import get_rtd
@@ -46,7 +47,7 @@ logging.basicConfig(format=FORMAT, level=logging.INFO, datefmt=datefmt)
     cls=HelpColorsGroup, help_headers_color="yellow", help_options_color="green"
 )
 @click.version_option(
-    version="0.0.1", message="Welcome to z/OS CLI %(prog)s, version %(version)s"
+    version="0.0.1a", message="Welcome to z/OS CLI %(prog)s, version %(version)s"
 )
 @click.option(
     "--verify / --no-verify",
@@ -211,6 +212,7 @@ if __name__ == "__main__":
     main.add_command(console_cli)
     main.add_command(datasets_cli)
     main.add_command(files_cli)
+    main.add_command(filesystems_cli)
     main.add_command(get_rtd)
     main.add_command(info)
     main.add_command(jobs_cli)

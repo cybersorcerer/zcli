@@ -48,10 +48,10 @@ class CONSOLE(C.CLIENT):
             sys.exit(CONSOLE.rc)
 
         if response.status_code != 200:
-            self.log.error(
+            self.log.debug(
                 f"CONSOLE-002E An unexpected statuscode {response.status_code} has been received:"
             )
-            self.log.error(f"            {response.text}")
+            self.log.debug(f"            {response.text}")
             CONSOLE.rc = 8
             CONSOLE.errors = {
                 "rc": CONSOLE.rc,

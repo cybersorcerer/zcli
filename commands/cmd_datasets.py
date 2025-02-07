@@ -2,10 +2,11 @@ import sys
 import click
 from click_help_colors import HelpColorsGroup, HelpColorsCommand
 from zosapi import datasets as d
+from commands.cmd_utils import MutuallyExclusiveOption
 
 
 # ------------------------------------------------------------------------------#
-# Define the software group                                                     #
+# Define the datasets group                                                     #
 # ------------------------------------------------------------------------------#
 @click.group(
     name="datasets",
@@ -18,8 +19,7 @@ def datasets_cli() -> None:
     Interact with z/OS datasets.
 
     \b
-    Module Name.:  commands.cmd_datasets.py
-    Alias........: None
+    Module Name..: commands.cmd_datasets.py
     Author.......: Ronny Funk
     Function.....: Work with z/OS Datasets
 
@@ -191,7 +191,7 @@ def read(
     encoding: str,
 ):
     """
-    Read a member of a PDS or PDS/E or a sequential dataset.
+    Read a member of a PDS or PDS/E or a sequential datasets.
 
     \b
     You can use this command to read a member of a dataset or a
@@ -486,17 +486,21 @@ def delete(
     volser: str,
 ):
     """
-    Delete a sequential or partitioned data sets on a z/OS system.
+    Delete sequential/partitioned z/OS datasets or members.
 
     \b
     You can use this command to delete a sequential or partitioned
-    dataset or a member of a partitioned dataset.
+    dataset or delete members on a partitioned dataset. If you would
+    like to delete non cataloged datasets or member, you can specify
+    a z/OS volume serial.
+
+    \b
     """
 
     verify = ctx.obj["VERIFY"]
     logging = ctx.obj["LOGGING"]
 
-    logging.debug("CMD-DATASETS-000D datasets create entered with:")
+    logging.debug("CMD-DATASETS-000D datasets delete entered with:")
     logging.debug(f"                 Dataset name: {ds_name}")
     logging.debug(f"                 Member name : {member_name}")
     logging.debug(f"                 volser      : {volser}")
@@ -524,3 +528,347 @@ def delete(
         sys.stderr.write(f"{str(errors)}\n")
     else:
         sys.stdout.write(f"{response.text}\n")
+
+
+# ------------------------------------------------------------------------------#
+# Define the instances subgroup of the software group                          #
+# ------------------------------------------------------------------------------#
+@datasets_cli.group(
+    name="utilities",
+    cls=HelpColorsGroup,
+    help_headers_color="yellow",
+    help_options_color="green",
+)
+def utilities_cli() -> None:
+    """
+    Copy, rename, hmigrate, hrecall or hdelete z/OS dataset.
+
+    \b
+    You can use the z/OS data set and member utilities to work with data sets and members.
+    The available commands allow you to, rename members or datasets, copy data set,
+    copy member, migrate data set, recall a migrated data set, and delete a backup version
+    of a data set.
+    """
+    pass
+
+
+# ------------------------------------------------------------------------------#
+# Define the datasets utils hrecall                                             #
+# ------------------------------------------------------------------------------#
+@utilities_cli.command(name="hrecall", cls=HelpColorsCommand, help_options_color="blue")
+@click.option(
+    "--ds-name",
+    "-dn",
+    required=True,
+    type=click.STRING,
+    help="The dataset name of a z/OS PDS or PDS/E or sequential dataset.",
+)
+@click.option(
+    "--wait/--no-wait",
+    required=False,
+    default=False,
+    show_default=True,
+    help="If true, the function waits for completion of the request.",
+)
+@click.pass_context
+def hrecall(
+    ctx: click.Context,
+    ds_name: str,
+    wait: bool,
+):
+    """
+    Recall a migrated z/OS Dataset.
+
+    \b
+    You can use this command to recall a previously migrated sequential
+    or partitioned dataset.
+    """
+
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
+
+    logging.debug("CMD-DATASETS-000D datasets hrecall entered with:")
+    logging.debug(f"                 Dataset name: {ds_name}")
+    logging.debug(f"                 Wait        : {wait}")
+
+    client = d.DATASETS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
+    errors, response = client.zosapi_datasets_utils(
+        ds_name=ds_name,
+        to_ds_name="",
+        to_member_name="",
+        member_name="",
+        wait=wait,
+        utility_name="hrecall",
+        volser="",
+        excl=False,
+        purge=False,
+        verify=verify,
+    )
+
+    logging.debug("CMD-DATASETS-000D dataset list returned with:")
+    logging.debug(f"                 errors  : {errors}")
+    logging.debug(f"                 response: {response}")
+
+    if errors:
+        sys.stderr.write(f"{str(errors)}\n")
+    else:
+        sys.stdout.write(f"{response.text}\n")
+
+
+# ------------------------------------------------------------------------------#
+# Define the datasets utils hmigrate                                            #
+# ------------------------------------------------------------------------------#
+@utilities_cli.command(
+    name="hmigrate", cls=HelpColorsCommand, help_options_color="blue"
+)
+@click.option(
+    "--ds-name",
+    "-dn",
+    required=True,
+    type=click.STRING,
+    help="The dataset name of a z/OS PDS or PDS/E or sequential dataset.",
+)
+@click.option(
+    "--wait/--no-wait",
+    required=False,
+    default=False,
+    show_default=True,
+    help="If true, the function waits for completion of the request.",
+)
+@click.pass_context
+def hmigrate(
+    ctx: click.Context,
+    ds_name: str,
+    wait: bool,
+):
+    """
+    Migrates a z/OS dataset.
+
+    \b
+    Migrates a data set to a DFSMShsm level 1 or level 2 volume.
+    Performed in the foreground by DFSMShsm.
+    """
+
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
+
+    logging.debug("CMD-DATASETS-000D datasets hmigrate entered with:")
+    logging.debug(f"                 Dataset name: {ds_name}")
+    logging.debug(f"                 Wait        : {wait}")
+
+    client = d.DATASETS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
+    errors, response = client.zosapi_datasets_utils(
+        ds_name=ds_name,
+        to_ds_name="",
+        to_member_name="",
+        utility_name="hmigrate",
+        member_name="",
+        wait=wait,
+        volser="",
+        purge=False,
+        excl=False,
+        verify=verify,
+    )
+
+    logging.debug("CMD-DATASETS-000D dataset list returned with:")
+    logging.debug(f"                 errors  : {errors}")
+    logging.debug(f"                 response: {response}")
+
+    if errors:
+        sys.stderr.write(f"{str(errors)}\n")
+    else:
+        sys.stdout.write(f"{response.text}\n")
+
+
+# ------------------------------------------------------------------------------#
+# Define the datasets utils hdelete                                             #
+# ------------------------------------------------------------------------------#
+@utilities_cli.command(name="hdelete", cls=HelpColorsCommand, help_options_color="blue")
+@click.option(
+    "--ds-name",
+    "-dn",
+    required=True,
+    type=click.STRING,
+    help="The dataset name of a z/OS PDS or PDS/E or sequential dataset.",
+)
+@click.option(
+    "--wait/--no-wait",
+    required=False,
+    default=False,
+    show_default=True,
+    help="If true, the function waits for completion of the request.",
+)
+@click.option(
+    "--purge/--no-purge",
+    required=False,
+    default=False,
+    show_default=True,
+    help="If False the function uses PURGE=NO on ARCHDEL request.",
+)
+@click.pass_context
+def hdelete(
+    ctx: click.Context,
+    ds_name: str,
+    wait: bool,
+    purge: bool,
+):
+    """
+    Delete a migrated z/OS Dataset.
+
+    \b
+    Scratches a data set on a DASD migration volume without recalling the data set
+    or marks the data set not valid in the TTOC for any tape ML2 volumes that contain
+    the data set. DFSMShsm then uncatalogs the data set. DFSMShsm deletes all control data
+    set records related to the migration copy. If the data set is migrated to an SDSP, the MCD
+    is updated to indicate that the migration copy needs to be scratched. If a discrete RACF
+    data set profile exists, DFSMShsm deletes it.
+    """
+
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
+
+    logging.debug("CMD-DATASETS-000D datasets hdelete entered with:")
+    logging.debug(f"                 Dataset name: {ds_name}")
+    logging.debug(f"                 Wait        : {wait}")
+
+    client = d.DATASETS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
+    errors, response = client.zosapi_datasets_utils(
+        ds_name=ds_name,
+        to_ds_name="",
+        to_member_name="",
+        utility_name="hdelete",
+        member_name="",
+        wait=wait,
+        purge=purge,
+        volser="",
+        excl=False,
+        verify=verify,
+    )
+
+    logging.debug("CMD-DATASETS-000D dataset list returned with:")
+    logging.debug(f"                 errors  : {errors}")
+    logging.debug(f"                 response: {response}")
+
+    if errors:
+        sys.stderr.write(f"{str(errors)}\n")
+    else:
+        sys.stdout.write(f"{response.text}\n")
+
+
+# ------------------------------------------------------------------------------#
+# Define the datasets read subcommand                                           #
+# ------------------------------------------------------------------------------#
+@utilities_cli.command(name="rename", cls=HelpColorsCommand, help_options_color="blue")
+@click.option(
+    "--ds-name",
+    "-dn",
+    required=True,
+    type=click.STRING,
+    help="Dataset name.",
+)
+@click.option(
+    "--to-ds-name",
+    "-tdn",
+    cls=MutuallyExclusiveOption,
+    mutually_exclusive=["[to_member_name]"],
+    default="",
+    type=click.STRING,
+    help="New dataset name for a Dataset rename.",
+)
+@click.option(
+    "--member-name",
+    "-fmn",
+    default="",
+    type=click.STRING,
+    help="Member name on --ds-name.",
+)
+@click.option(
+    "--to-member-name",
+    "-tmn",
+    default="",
+    type=click.STRING,
+    cls=MutuallyExclusiveOption,
+    mutually_exclusive=["to_ds_name"],
+    help="New member name on --ds-name.",
+)
+@click.option(
+    "--enq-exclusive/--no-enq-exclusive",
+    default=False,
+    show_default=True,
+    help="If False a shared enq will be set.",
+)
+@click.pass_context
+def rename(
+    ctx: click.Context,
+    ds_name: str,
+    to_ds_name: str,
+    member_name: str,
+    to_member_name: str,
+    enq_exclusive: bool,
+):
+    """
+    Rename z/OS Datasets or members in a z/OS PDS(E).
+
+    \b
+    You can use this command to rename a member of a dataset or a
+    sequental dataset.
+    """
+
+    verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
+
+    logging.debug("CMD-DATASETS-000D datasets list entered with:")
+    logging.debug(f"                  Dataset name: {ds_name}")
+    logging.debug(f"                        member: {member_name}")
+    logging.debug(f"             exclusive enqueue: {enq_exclusive}")
+
+    client = d.DATASETS(
+        hostname=ctx.obj["HOST_NAME"],
+        protocol=ctx.obj["PROTOCOL"],
+        port=ctx.obj["PORT"],
+        username=ctx.obj["USER"],
+        password=ctx.obj["PASSWORD"],
+        cert_path=ctx.obj["CERT_PATH"],
+    )
+    errors, response = client.zosapi_datasets_utils(
+        ds_name=ds_name,
+        to_ds_name=to_ds_name,
+        member=member_name,
+        to_member_name=to_member_name,
+        excl=enq_exclusive,
+        volser="",
+        purge=False,
+        wait=False,
+        verify=verify,
+    )
+
+    logging.debug("CMD-DATASETS-000D dataset list returned with:")
+    logging.debug(f"                errors: {errors}")
+    logging.debug(f"              response: {response}")
+
+    if errors:
+        sys.stderr.write(f"{str(errors)}\n")
+    else:
+        sys.stdout.write(f"{response.text}\n")
+        sys.stdout.write(f"{response.headers}\n")
