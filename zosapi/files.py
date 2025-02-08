@@ -295,4 +295,261 @@ class FILES(f.CLIENT):
             }
 
         return FILES.errors, response
+    
+    def zosapi_files_util_chmod(
+        self,
+        zunix_file_path: str,
+        permissions: str = "644",
+        links: bool = True,
+        recursive: bool = False,
+        verify: bool = True,
+    ):
+        """
+        Performs chmod on z/Unix files or directories
+
+        Args:
+            zunix_file_path (str): The path/file name to create.
+            zunix_file_mode (str): The mode of the file, defaults to 644.
+            links (bool): Follow links. Defaults to True.
+            recursive (bool): Change mode recursively. Defaults to False.
+            verify (bool): Verify certificats. Defaults to true
+
+        Returns:
+            error: Dictionalry with return code and error messages if any.
+            response: Command response or in case of an error empty list.
+        """
+
+        if not verify:
+            requests.packages.urllib3.disable_warnings()
+
+        url = f"{self.path_to_api}/restfiles/fs{zunix_file_path}"
+
+        str_link = "follow"
+        if not links:
+            str_link = "suppress"
+
+        data = {
+            "request": "chmod",
+            "mode": permissions,
+            "links": str_link,
+            "recursive": recursive
+        }
+
+        try:
+            response = requests.put(url, headers=self.headers, json=data, verify=verify)
+        except Exception as e:
+            FILES.rc = 16
+            FILES.errors = {"rc": FILES.rc, "request_error": e}
+            self.log.critical(
+                f"FILES-001S Catched an unexpected exception, can not continue {str(FILES.errors)}"
+            )
+            sys.exit(FILES.rc)
+
+        if response.status_code != 200:
+            self.log.debug(
+                f"FILES-002E An unexpected statuscode {response.status_code} has been received:"
+            )
+            self.log.debug(f"           {response.text}")
+            FILES.rc = 8
+            FILES.errors = {
+                "rc": FILES.rc,
+                "status_code": response.status_code,
+                "reason": response.reason,
+            }
+
+        return FILES.errors, response
+    
+    def zosapi_files_util_chown(
+        self,
+        zunix_file_path: str,
+        owner: str,
+        group: str,
+        links: bool = True,
+        recursive: bool = False,
+        verify: bool = True,
+    ):
+        """
+        Performs chown on z/Unix files or directories
+
+        Args:
+            zunix_file_path (str): The path/file name to create.
+            owner (str): The owner of the file.
+            group (str): The group of the file.
+            links (bool): Follow links. Defaults to True.
+            recursive (bool): Change mode recursively. Defaults to False.
+            verify (bool): Verify certificats. Defaults to true  
+
+        Returns:
+            error: Dictionalry with return code and error messages if any.
+            response: Command response or in case of an error empty list.
+        """
+
+        if not verify:
+            requests.packages.urllib3.disable_warnings()
+
+        url = f"{self.path_to_api}/restfiles/fs{zunix_file_path}"
+
+        str_link = "follow"
+        if not links:
+            str_link = "suppress"
+
+        data = {
+            "request": "chown",
+            "owner": owner,
+            "group": group,
+            "links": str_link,
+            "recursive": recursive
+        }
+
+        try:
+            response = requests.put(url, headers=self.headers, json=data, verify=verify)
+        except Exception as e:
+            FILES.rc = 16
+            FILES.errors = {"rc": FILES.rc, "request_error": e}
+            self.log.critical(
+                f"FILES-001S Catched an unexpected exception, can not continue {str(FILES.errors)}"
+            )
+            sys.exit(FILES.rc)
+
+        if response.status_code != 200:
+            self.log.debug(
+                f"FILES-002E An unexpected statuscode {response.status_code} has been received:"
+            )
+            self.log.debug(f"           {response.text}")
+            FILES.rc = 8
+            FILES.errors = {
+                "rc": FILES.rc,
+                "status_code": response.status_code,
+                "reason": response.reason,
+            }
+
+        return FILES.errors, response
+
+    def zosapi_files_util_chtag(
+        self,
+        zunix_file_path: str,
+        action: str,
+        codeset: str,
+        file_type: str = "mixed",
+        links: bool = True,
+        recursive: bool = False,
+        verify: bool = True,
+    ):
+        """
+        Performs chtag on z/Unix files or directories
+
+        Args:
+            zunix_file_path (str): The path/file name to create.
+            action (str): The action to perform (set or reset).
+            codeset (str): The codeset to use.
+            file_type (str): The type of file to set (mixed, text, binary).
+            links (bool): Follow links. Defaults to True.
+            recursive (bool): Change mode recursively. Defaults to False.
+            verify (bool): Verify certificats. Defaults to true
+
+        Returns:
+            error: Dictionalry with return code and error messages if any.
+            response: Command response or in case of an error empty list.
+        """
+
+        if not verify:
+            requests.packages.urllib3.disable_warnings()
+
+        url = f"{self.path_to_api}/restfiles/fs{zunix_file_path}"
+
+        str_link = "change"
+        if not links:
+            str_link = "suppress"
+
+        data = {
+            "request": "chtag",
+            "action": action,
+            "type": file_type,
+            "links": str_link,
+            "recursive": recursive
+        }
+
+        if action == "set":
+            data["codeset"] = codeset
+
+        try:
+            response = requests.put(url, headers=self.headers, json=data, verify=verify)
+        except Exception as e:
+            FILES.rc = 16
+            FILES.errors = {"rc": FILES.rc, "request_error": e}
+            self.log.critical(
+                f"FILES-001S Catched an unexpected exception, can not continue {str(FILES.errors)}"
+            )
+            sys.exit(FILES.rc)
+
+        if response.status_code != 200:
+            self.log.debug(
+                f"FILES-002E An unexpected statuscode {response.status_code} has been received:"
+            )
+            self.log.debug(f"           {response.text}")
+            FILES.rc = 8
+            FILES.errors = {
+                "rc": FILES.rc,
+                "status_code": response.status_code,
+                "reason": response.reason,
+            }
+
+        return FILES.errors, response
+    
+    def zosapi_files_util_extattr(
+        self,
+        zunix_file_path: str,
+        action: str,
+        attributes: str,
+        verify: bool = True,
+    ):
+        """
+        Set, reset, and display extended attributes for files
+
+        Args:
+            zunix_file_path (str): The path/file name to create.
+            action (str): The action to perform (set, reset, or display).
+            attributes (str): The attributes to set.
+            verify (bool): Verify certificats. Defaults to true
+
+        Returns:
+            error: Dictionalry with return code and error messages if any.
+            response: Command response or in case of an error empty list.
+        """
+
+        if not verify:
+            requests.packages.urllib3.disable_warnings()
+
+        url = f"{self.path_to_api}/restfiles/fs{zunix_file_path}"
+
+        data = {
+            "request": "extattr",
+        }
+
+        if action != "" and attributes != "":
+            data[f"{action}"] = attributes
+
+        try:
+            response = requests.put(url, headers=self.headers, json=data, verify=verify)
+        except Exception as e:
+            FILES.rc = 16
+            FILES.errors = {"rc": FILES.rc, "request_error": e}
+            self.log.critical(
+                f"FILES-001S Catched an unexpected exception, can not continue {str(FILES.errors)}"
+            )
+            sys.exit(FILES.rc)
+
+        if response.status_code != 200:
+            self.log.debug(
+                f"FILES-002E An unexpected statuscode {response.status_code} has been received:"
+            )
+            self.log.debug(f"           {response.text}")
+            FILES.rc = 8
+            FILES.errors = {
+                "rc": FILES.rc,
+                "status_code": response.status_code,
+                "reason": response.reason,
+            }
+
+        return FILES.errors, response
 

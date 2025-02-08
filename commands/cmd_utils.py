@@ -1,5 +1,6 @@
 import click
 import os
+import sys
 import json
 
 from click import Option, UsageError
@@ -111,6 +112,32 @@ def get_profile_data(
 
     return value
 
+def process_response(errors: dict, response: dict, process_text: bool = False) -> None:
+    """
+    Process the response from the API
+
+    Args:
+        errors: dict: The error dictionary
+        response: dict: The response from the API
+        process_text: bool: Process the
+
+    Returns: 
+        None
+    """
+
+    if errors:
+        sys.stderr.write(f"{str(errors)}\n")
+        if process_text:
+            response_dict = json.loads(response.text)
+            sys.stderr.write(f"{response_dict["message"]}\n")
+            for utility_details in response_dict["details"]:
+                details = utility_details.split("\n")
+                for detail in details:
+                    sys.stderr.write(f"{detail}\n")
+
+    if response.text != "":
+        sys.stdout.write(f"{response.text}\n")
+
 
 class MutuallyExclusiveOption(Option):
     """_Implements click mutally exclusive options_
@@ -166,3 +193,7 @@ class RequiredIfOption(Option):
             )
 
         return super(RequiredIfOption, self).handle_parse_result(ctx, opts, args)
+    
+def fix_required(ctx, param, value):
+    if value == 'set':
+        ctx.command.params[3].required = True
