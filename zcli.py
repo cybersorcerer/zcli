@@ -32,6 +32,7 @@ from commands.cmd_topology import topology_cli
 from commands.cmd_tso import tso_cli
 from commands.cmd_notifications import notifications_cli
 from commands.cmd_console import console_cli
+from commands.cmd_profile import profile_cli
 
 from commands.cmd_globals import (
     TERMINAL,
@@ -217,6 +218,7 @@ if __name__ == "__main__":
     main.add_command(info)
     main.add_command(jobs_cli)
     main.add_command(notifications_cli)
+    main.add_command(profile_cli)
     main.add_command(software_cli)
     main.add_command(subsystems_cli)
     main.add_command(sysvar_cli)
