@@ -88,6 +88,12 @@ def get_profile_values(config: dict, name: str) -> dict:
         profile_type="zosmf",
         key="rejectUnauthorized",
     )
+    user_home = get_profile_data(
+        config=CONFIG,
+        profile_name=name,
+        profile_type="zosmf",
+        key="home",
+    )
     return {
         "name": name,
         "description": description,
@@ -97,6 +103,7 @@ def get_profile_values(config: dict, name: str) -> dict:
         "port": port,
         "rejectUnauthorized": reject_unauthorized,
         "default": value,
+        "home": user_home,
     }
 
 # ------------------------------------------------------------------------------#
