@@ -19,7 +19,6 @@ def files_cli() -> None:
     Interact with z/OS z/Unix files.
 
     \b
-    Module Name..: commands.cmd_files.py
     Author.......: Ronny Funk
     Function.....: Work with z/Unix files
 

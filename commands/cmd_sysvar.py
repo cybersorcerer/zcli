@@ -18,8 +18,6 @@ def sysvar_cli() -> None:
     Interact with the z/OSMF and System variables.
 
     \b
-    Module Name.:  commands.cmd_sysvar.py
-    Alias........: None
     Author.......: Ronny Funk
     Function.....: Work with z/OS and z/OSMF variables
 
@@ -63,9 +61,9 @@ def get(ctx: click.Context, plex_name: str, system_name: str):
     verify = ctx.obj["VERIFY"]
     logging = ctx.obj["LOGGING"]
 
-    logging.debug("CMD-SYSVAR-000D list() entered with:")
-    logging.debug(f"                      sysplex name: {plex_name}")
-    logging.debug(f"                       system name: {system_name}")
+    logging.debug("CMD-SYSVAR-000D get() entered with:")
+    logging.debug(f"                     sysplex name: {plex_name}")
+    logging.debug(f"                      system name: {system_name}")
 
     client = s.SYSVAR(
         hostname=ctx.obj["HOST_NAME"],
@@ -78,6 +76,10 @@ def get(ctx: click.Context, plex_name: str, system_name: str):
     errors, response = client.get_system_variables(
         sysplex_name=plex_name, system_name=system_name, verify=verify
     )
+
+    logging.debug("CMD-SYSVAR-000D get() returns:")
+    logging.debug(f"                    response: {response}")
+    logging.debug(f"                      errors: {errors}")
 
     if errors:
         sys.stderr.write(f"{str(errors)}\n")

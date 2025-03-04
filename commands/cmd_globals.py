@@ -19,7 +19,7 @@ if sys.stdout.isatty():
     SEVERE_FG_COLOR: str = "red"
     """
         Uncomment lines below if you want to have the screen
-        cleared ech time you invoke zcli
+        cleared each time you invoke zcli
     """
     # print(chr(27) + "[2J")
     # print(chr(27) + "[1;1f")

@@ -18,8 +18,6 @@ def subsystems_cli() -> None:
     This service lists the subsystems on a z/OS system.
 
     \b
-    Module Name.:  commands.cmd_cmd_mvssubs.py
-    Alias........: None
     Author.......: Ronny Funk
     Function.....: Get z/OS defined subsystems data
 
@@ -27,9 +25,8 @@ def subsystems_cli() -> None:
     """
     pass
 
-
 # ------------------------------------------------------------------------------#
-# Define the subsystem list subcommand                                         #
+# Define the subsystem list subcommand                                          #
 # ------------------------------------------------------------------------------#
 @subsystems_cli.command(name="list", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
@@ -62,6 +59,11 @@ def list(ctx: click.Context, name: str):
         cert_path=ctx.obj["CERT_PATH"],
     )
     errors, response = client.get_subsystems(filter=name, verify=verify)
+
+    logging.debug("CMD-SUBSYSTEMS-000D list() returns:")
+    logging.debug(f"                         response: {response}")
+    logging.debug(f"                           errors: {errors}")
+
     if "rc" in errors:
         sys.stderr.write(f"{str(errors)}\n")
     else:

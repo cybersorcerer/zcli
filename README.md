@@ -75,6 +75,12 @@ mkdir -p $HOME/.config/zcli
 cp <PATH_TO_ZCLI_DIR>/samples/zcli.json $HOME/.config/zcli.json
 ```
 
+zcli.json will contain your credentials, please make sure it can only be accessed by your user id
+
+```bash
+chmod 600 zcli.json
+```
+
 ### Edit zcli configuration file to suit your needs
 
 1. Change ```<profile_name>```to a meaningful name
@@ -87,7 +93,7 @@ cp <PATH_TO_ZCLI_DIR>/samples/zcli.json $HOME/.config/zcli.json
 ## How to use zcli.py
 
 ```bash
-./zcli.py --no-verify --help
+zcli --no-verify --help
 Usage: zcli.py [OPTIONS] COMMAND [ARGS]...
 
   Program Name.: z/OS CLI (zcli.py)
@@ -114,11 +120,11 @@ Commands:
   info           Use this commmand to retrieve information about z/OSMF.
   jobs           Work with batch jobs on a z/OS system.
   notifications  Work with z/OSMF notification services.
+  profile        Work with zcli profiles.
   rtd            Use this commmand to retrieve Runtime Diagnostic Data...
   software       Interact with the z/OSMF Software Management task.
   subsystems     This service lists the subsystems on a z/OS system.
   sysvar         Interact with the z/OSMF and System variables.
   topology       Provides commands for working with the groups,...
   tso            Work with TSO/E address space services on a z/OS system.
-
 ```

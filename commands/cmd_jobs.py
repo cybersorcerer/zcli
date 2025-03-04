@@ -21,8 +21,6 @@ def jobs_cli() -> None:
     Work with batch jobs on a z/OS system.
 
     \b
-    Module Name.:  commands.cmd_jobs.py
-    Alias........: None
     Author.......: Ronny Funk
     Function.....: Work with JES jobs and spool files
 
@@ -41,7 +39,7 @@ def jobs_cli() -> None:
     required=False,
     help="Owner of the jobs to list",
     default="",
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--prefix",
@@ -49,7 +47,7 @@ def jobs_cli() -> None:
     required=False,
     help="Job name prefix; default is *",
     default="*",
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--max-jobs",
@@ -58,7 +56,7 @@ def jobs_cli() -> None:
     help="Maximum number of jobs returned..",
     default=1000,
     show_default=True,
-    type=int,
+    type=click.INT,
 )
 @click.option(
     "--exec-data / --no-exec-data",
@@ -163,7 +161,7 @@ def list(
     default="*",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--job-name",
@@ -173,7 +171,7 @@ def list(
     default="*",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--job-correlator",
@@ -183,14 +181,14 @@ def list(
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["jobid", "name"],
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--files / --no-files",
     required=False,
     help="Get the jobs spool file DD names.",
     default=False,
-    type=bool,
+    type=click.BOOL,
 )
 @click.pass_context
 def ddnames(
@@ -262,7 +260,7 @@ def ddnames(
     default="*",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--job-name",
@@ -272,7 +270,7 @@ def ddnames(
     default="*",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--job-correlator",
@@ -282,14 +280,14 @@ def ddnames(
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["jobid", "name"],
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--file-id",
     "-fi",
     required=True,
     help="The id of the spool file to retrieveq.",
-    type=str,
+    type=click.STRING,
 )
 @click.pass_context
 def files(
@@ -363,7 +361,7 @@ def files(
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--job-name",
@@ -373,7 +371,7 @@ def files(
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--job-correlator",
@@ -383,7 +381,7 @@ def files(
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["jobid", "name"],
-    type=str,
+    type=click.STRING,
 )
 @click.pass_context
 def jcl(ctx: click.Context, job_id: str, job_name: str, job_correlator: str):
@@ -448,7 +446,7 @@ def jcl(ctx: click.Context, job_id: str, job_name: str, job_correlator: str):
     "-fn",
     required=True,
     help="Full file name containing z/OS Job JCL.",
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--secondary-jes",
@@ -531,7 +529,7 @@ def submit(
     help="The job name.",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--job-id",
@@ -542,7 +540,7 @@ def submit(
     mutually_exclusive=["job_correlator"],
     default="",
     show_default=True,
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--job-correlator",
@@ -553,7 +551,7 @@ def submit(
     show_default=True,
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["jobid", "name"],
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--secondary-jes",
@@ -562,7 +560,7 @@ def submit(
     default="",
     show_default=True,
     help="Secondary JES subsystem name.",
-    type=str,
+    type=click.STRING,
 )
 @click.pass_context
 def hold(
@@ -630,7 +628,7 @@ def hold(
     help="The job name.",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--job-id",
@@ -641,7 +639,7 @@ def hold(
     mutually_exclusive=["job_correlator"],
     default="",
     show_default=True,
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--job-correlator",
@@ -652,10 +650,10 @@ def hold(
     show_default=True,
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["jobid", "name"],
-    type=str,
+    type=click.STRING,
 )
 @click.option(
-    "--new-class", "-nc", required=True, help="The new JES Jobclass to use.", type=str
+    "--new-class", "-nc", required=True, help="The new JES Jobclass to use.", type=click.STRING
 )
 @click.option(
     "--secondary-jes",
@@ -664,7 +662,7 @@ def hold(
     default="",
     show_default=True,
     help="Secondary JES subsystem name.",
-    type=str,
+    type=click.STRING,
 )
 @click.pass_context
 def jobclass(
@@ -738,7 +736,7 @@ def jobclass(
     help="The job name.",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--job-id",
@@ -749,7 +747,7 @@ def jobclass(
     mutually_exclusive=["job_correlator"],
     default="",
     show_default=True,
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--job-correlator",
@@ -760,7 +758,7 @@ def jobclass(
     show_default=True,
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["jobid", "name"],
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--secondary-jes",
@@ -769,7 +767,7 @@ def jobclass(
     default="",
     show_default=True,
     help="Secondary JES subsystem name.",
-    type=str,
+    type=click.STRING,
 )
 @click.pass_context
 def release(
@@ -833,7 +831,7 @@ def release(
     help="The job name.",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["job_correlator"],
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--job-id",
@@ -844,7 +842,7 @@ def release(
     mutually_exclusive=["job_correlator"],
     default="",
     show_default=True,
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--job-correlator",
@@ -855,7 +853,7 @@ def release(
     show_default=True,
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["jobid", "name"],
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--secondary-jes",
@@ -864,7 +862,7 @@ def release(
     default="",
     show_default=True,
     help="Secondary JES subsystem name.",
-    type=str,
+    type=click.STRING,
 )
 @click.option(
     "--purge / --no-purge",
@@ -872,7 +870,7 @@ def release(
     default=False,
     show_default=True,
     help="Purge output of cancelled job.",
-    type=bool,
+    type=click.BOOL,
 )
 @click.pass_context
 def cancel(

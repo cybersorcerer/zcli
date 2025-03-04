@@ -26,8 +26,6 @@ def software_cli() -> None:
     Interact with the z/OSMF Software Management task.
 
     \b
-    Module Name.:  commands.cmd_software.py
-    Alias........: None
     Author.......: Ronny Funk
     Function.....: Work with the z/OSMF software management task
 
@@ -66,7 +64,7 @@ def query_cli() -> None:
 @click.option(
     "--global-csi",
     "-gc",
-    type=str,
+    type=click.STRING,
     required=True,
     default=GLOBAL_CSI,
     show_default=True,
@@ -75,23 +73,23 @@ def query_cli() -> None:
 @click.option(
     "--zones",
     "-z",
-    type=str,
+    type=click.STRING,
     default="GLOBAL",
     show_default=True,
     help="One or more SMP/E Zone names, separated by comma.",
 )
 @click.option(
-    "--entry", "-e", type=str, default="", help="SMP/E entry type (sysmod, dddef etc)."
+    "--entry", "-e", type=click.STRING, default="", help="SMP/E entry type (sysmod, dddef etc)."
 )
 @click.option(
     "--subentries",
     "-se",
-    type=str,
+    type=click.STRING,
     default="",
     help="Blank separated string of subentries.",
 )
 @click.option(
-    "--filter", "-fi", type=str, default="", help="Some filter criteria for the query."
+    "--filter", "-fi", type=click.STRING, default="", help="Some filter criteria for the query."
 )
 @click.pass_context
 def csids(
@@ -183,7 +181,7 @@ def csids(
 @click.option(
     "--nick-name",
     "-nn",
-    type=str,
+    type=click.STRING,
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
@@ -192,7 +190,7 @@ def csids(
 @click.option(
     "--swi-name",
     "-sn",
-    type=str,
+    type=click.STRING,
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
@@ -201,7 +199,7 @@ def csids(
 @click.option(
     "--uuid",
     "-u",
-    type=str,
+    type=click.STRING,
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["swi_name", "nick_name"],
@@ -273,7 +271,7 @@ def critical_updates(
 @click.option(
     "--nick-name",
     "-nn",
-    type=str,
+    type=click.STRING,
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
@@ -282,7 +280,7 @@ def critical_updates(
 @click.option(
     "--swi-name",
     "-sn",
-    type=str,
+    type=click.STRING,
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
@@ -291,7 +289,7 @@ def critical_updates(
 @click.option(
     "--uuid",
     "-u",
-    type=str,
+    type=click.STRING,
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["swi_name", "nick_name"],
@@ -374,7 +372,7 @@ def software_updates(
 @click.option(
     "--nick-name",
     "-nn",
-    type=str,
+    type=click.STRING,
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
@@ -383,7 +381,7 @@ def software_updates(
 @click.option(
     "--swi-name",
     "-sn",
-    type=str,
+    type=click.STRING,
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
@@ -392,7 +390,7 @@ def software_updates(
 @click.option(
     "--uuid",
     "-u",
-    type=str,
+    type=click.STRING,
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["swi_name", "nick_name"],
@@ -653,14 +651,14 @@ def add(ctx: click.Context, file_name: str):
 @click.option(
     "--file-name",
     "-fn",
-    type=str,
+    type=click.STRING,
     required=True,
     help="File Name of the export input file.",
 )
 @click.option(
     "--nick-name",
     "-nn",
-    type=str,
+    type=click.STRING,
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
@@ -669,7 +667,7 @@ def add(ctx: click.Context, file_name: str):
 @click.option(
     "--swi-name",
     "-sn",
-    type=str,
+    type=click.STRING,
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
@@ -678,7 +676,7 @@ def add(ctx: click.Context, file_name: str):
 @click.option(
     "--uuid",
     "-u",
-    type=str,
+    type=click.STRING,
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["swi_name", "nick_name"],
@@ -719,11 +717,8 @@ def export(
     \b
     https://www.ibm.com/docs/en/zos/3.1.0?topic=services-export-defined-software-instance
     """
-    user = ctx.obj["USER"]
-    password = ctx.obj["PASSWORD"]
     verify = ctx.obj["VERIFY"]
     logging = ctx.obj["LOGGING"]
-    HOST_NAME = ctx.obj["HOST_NAME"]
 
     logging.debug("CMD-SOFTWARE-000D list() entered with:")
     logging.debug(f"                           file name: {file_name}")
@@ -747,6 +742,10 @@ def export(
         verify=verify,
     )
 
+    logging.debug("CMD-SOFTWARE-000D export() ended with:")
+    logging.debug(f"                               errors: {errors}")
+    logging.debug(f"                             response: {response}") 
+
     if errors:
         sys.stderr.write(f"{str(errors)}\n")
     else:
@@ -760,7 +759,7 @@ def export(
 @click.option(
     "--nick-name",
     "-nn",
-    type=str,
+    type=click.STRING,
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
@@ -769,7 +768,7 @@ def export(
 @click.option(
     "--swi-name",
     "-sn",
-    type=str,
+    type=click.STRING,
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
@@ -778,7 +777,7 @@ def export(
 @click.option(
     "--uuid",
     "-u",
-    type=str,
+    type=click.STRING,
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["swi_name", "nick_name"],
@@ -808,7 +807,7 @@ def delete(ctx: click.Context, nick_name: str, swi_name: str, uuid: str):
     verify = ctx.obj["VERIFY"]
     logging = ctx.obj["LOGGING"]
 
-    logging.debug("CMD-SOFTWARE-000D list() entered with:")
+    logging.debug("CMD-SOFTWARE-000D delete() entered with:")
     logging.debug(f"                           nick name: {nick_name}")
     logging.debug(f"              software instance name: {swi_name}")
     logging.debug(f"                                uuid: {uuid}")
@@ -825,6 +824,10 @@ def delete(ctx: click.Context, nick_name: str, swi_name: str, uuid: str):
         nick_name=nick_name, swi_name=swi_name, uuid=uuid, verify=verify
     )
 
+    logging.debug("CMD-SOFTWARE-000D delete() ended with:")
+    logging.debug(f"                              errors: {errors}")
+    logging.debug(f"                            response: {response}")
+
     if errors:
         sys.stderr.write(f"{str(errors)}\n")
     else:
@@ -838,7 +841,7 @@ def delete(ctx: click.Context, nick_name: str, swi_name: str, uuid: str):
 @click.option(
     "--nick-name",
     "-nn",
-    type=str,
+    type=click.STRING,
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
@@ -847,7 +850,7 @@ def delete(ctx: click.Context, nick_name: str, swi_name: str, uuid: str):
 @click.option(
     "--swi-name",
     "-sn",
-    type=str,
+    type=click.STRING,
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
@@ -856,7 +859,7 @@ def delete(ctx: click.Context, nick_name: str, swi_name: str, uuid: str):
 @click.option(
     "--uuid",
     "-u",
-    type=str,
+    type=click.STRING,
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["swi_name", "nick_name"],
@@ -879,10 +882,10 @@ def siprops(ctx: click.Context, nick_name: str, swi_name: str, uuid: str):
     verify = ctx.obj["VERIFY"]
     logging = ctx.obj["LOGGING"]
 
-    logging.debug("CMD-SOFTWARE-000D list() entered with:")
-    logging.debug(f"                           nick name: {nick_name}")
-    logging.debug(f"              software instance name: {swi_name}")
-    logging.debug(f"                                uuid: {uuid}")
+    logging.debug("CMD-SOFTWARE-000D siprops() entered with:")
+    logging.debug(f"                              nick name: {nick_name}")
+    logging.debug(f"                 software instance name: {swi_name}")
+    logging.debug(f"                                   uuid: {uuid}")
 
     client = s.SMS(
         hostname=ctx.obj["HOST_NAME"],
@@ -895,6 +898,11 @@ def siprops(ctx: click.Context, nick_name: str, swi_name: str, uuid: str):
     errors, response = client.get_software_instance_properties(
         nick_name=nick_name, sw_name=swi_name, uuid=uuid, verify=verify
     )
+
+    logging.debug("CMD-SOFTWARE-000D siprops() ended with:")
+    logging.debug(f"                              errors: {errors}")
+    logging.debug(f"                            response: {response}")
+
     if errors:
         sys.stderr.write(f"{str(errors)}\n")
     else:
@@ -910,7 +918,7 @@ def siprops(ctx: click.Context, nick_name: str, swi_name: str, uuid: str):
 @click.option(
     "--nick-name",
     "-nn",
-    type=str,
+    type=click.STRING,
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
@@ -919,7 +927,7 @@ def siprops(ctx: click.Context, nick_name: str, swi_name: str, uuid: str):
 @click.option(
     "--swi-name",
     "-sn",
-    type=str,
+    type=click.STRING,
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["uuid"],
@@ -928,7 +936,7 @@ def siprops(ctx: click.Context, nick_name: str, swi_name: str, uuid: str):
 @click.option(
     "--uuid",
     "-u",
-    type=str,
+    type=click.STRING,
     default="",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["swi_name", "nick_name"],
@@ -951,10 +959,10 @@ def silistds(ctx: click.Context, nick_name: str, swi_name: str, uuid: str):
     verify = ctx.obj["VERIFY"]
     logging = ctx.obj["LOGGING"]
 
-    logging.debug("CMD-SOFTWARE-000D list() entered with:")
-    logging.debug(f"                           nick name: {nick_name}")
-    logging.debug(f"              software instance name: {swi_name}")
-    logging.debug(f"                                uuid: {uuid}")
+    logging.debug("CMD-SOFTWARE-000D silistds() entered with:")
+    logging.debug(f"                               nick name: {nick_name}")
+    logging.debug(f"                  software instance name: {swi_name}")
+    logging.debug(f"                                    uuid: {uuid}")
 
     client = s.SMS(
         hostname=ctx.obj["HOST_NAME"],
@@ -967,6 +975,11 @@ def silistds(ctx: click.Context, nick_name: str, swi_name: str, uuid: str):
     errors, response = client.get_software_instance_datasets(
         nick_name=nick_name, sw_name=swi_name, uuid=uuid, verify=verify
     )
+
+    logging.debug("CMD-SOFTWARE-000D silistds() entered with:")
+    logging.debug(f"                               errors: {errors}")
+    logging.debug(f"                             response: {response}")
+
     if errors:
         sys.stderr.write(f"{str(errors)}\n")
     else:

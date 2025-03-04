@@ -16,6 +16,10 @@ from zosapi import notifications as n
 def notifications_cli() -> None:
     """
     Work with z/OSMF notification services.
+    \b
+    Author.......: Ronny Funk
+    Function.....: This command group provides the ability to work with z/OSMF  
+                   notification services.
 
     \b
     These commands are used to send a notification in the form of a notification

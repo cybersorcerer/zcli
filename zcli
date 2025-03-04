@@ -4,4 +4,4 @@ cd "<PATH_TO_ZCLI_DIR>"
 if [ "$INVENV" -eq "0" ]; then
   source venv/bin/activate
 fi
-./zcli "$@"
+./zcli.py "$@"

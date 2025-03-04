@@ -24,8 +24,6 @@ def console_cli() -> None:
     console, which is then used to issue commands and receive messages..
 
     \b
-    Module Name.:  commands.cmd_console.py
-    Alias........: None
     Author.......: Ronny Funk
     Function.....: Work with z/OS Console services
 
@@ -39,7 +37,7 @@ def console_cli() -> None:
 # ------------------------------------------------------------------------------#
 @console_cli.command(name="command", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    "--command", "-c", required=True, help="The z/OS command to issue.", type=str
+    "--command", "-c", required=True, help="The z/OS command to issue.", type=click.STRING
 )
 @click.pass_context
 def command(ctx: click.Context, command: str):

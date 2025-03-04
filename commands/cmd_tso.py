@@ -1,4 +1,5 @@
 import sys
+import json
 import click
 from click_help_colors import HelpColorsGroup, HelpColorsCommand
 from zosapi import tso as t
@@ -32,10 +33,15 @@ def tso_cli() -> None:
 # ------------------------------------------------------------------------------#
 @tso_cli.command(name="command", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    "--command", "-c", required=True, help="The TSO/E command to issue.", type=str
+    "--text/--no-text",
+    default=False,
+    help="Display the response as text.",
+)
+@click.option(
+    "--command", "-c", required=True, help="The TSO/E command to issue.", type=click.STRING
 )
 @click.pass_context
-def command(ctx: click.Context, command: str):
+def command(ctx: click.Context, text: bool, command: str):
     """
     Issue TSO/E command.
     \b
@@ -57,4 +63,9 @@ def command(ctx: click.Context, command: str):
     if errors:
         sys.stderr.write(f"{str(errors)}\n")
     else:
-        sys.stdout.write(f"{response.text}\n")
+        if text:
+            response_dict = json.loads(response.text)
+            for line in response_dict["cmdResponse"]:
+                sys.stdout.write(f"{line["message"]}\n")
+        else:
+            sys.stdout.write(f"{response.text}\n")

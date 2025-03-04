@@ -11,7 +11,6 @@ from commands.cmd_utils import (
     get_profile_data,
 )
 
-
 # ------------------------------------------------------------------------------#
 # Define the profile group                                                      #
 # ------------------------------------------------------------------------------#
@@ -28,8 +27,6 @@ def profile_cli() -> None:
     With the profile commands, you can work with zcli profile defintions.
 
     \b
-    Module Name.:  commands.cmd_profile.py
-    Alias........: None
     Author.......: Ronny Funk
     Function.....: Work with zcli Profiles
 
@@ -88,6 +85,12 @@ def get_profile_values(config: dict, name: str) -> dict:
         profile_type="zosmf",
         key="rejectUnauthorized",
     )
+    user_home = get_profile_data(
+        config=CONFIG,
+        profile_name=name,
+        profile_type="zosmf",
+        key="home",
+    )
     return {
         "name": name,
         "description": description,
@@ -97,6 +100,7 @@ def get_profile_values(config: dict, name: str) -> dict:
         "port": port,
         "rejectUnauthorized": reject_unauthorized,
         "default": value,
+        "home": user_home,
     }
 
 # ------------------------------------------------------------------------------#
@@ -104,7 +108,7 @@ def get_profile_values(config: dict, name: str) -> dict:
 # ------------------------------------------------------------------------------#
 @profile_cli.command(name="get", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    "--name", "-n", required=False, default="", help="Profile name to retrieve, all profiles if empty.", type=str
+    "--name", "-n", required=False, default="", help="Profile name to retrieve, all profiles if empty.", type=click.STRING
 )
 @click.pass_context
 def get(ctx: click.Context, name: str):
@@ -113,6 +117,11 @@ def get(ctx: click.Context, name: str):
     \b
     You can use this command to get a list of a single or all zcli profile definitions.
     """
+    logging = ctx.obj["LOGGING"]
+
+    logging.debug("CMD-PROF-000D list() entered with:")
+    logging.debug(f"                        name: {name}")
+
     if name:
         if name not in CONFIG["profiles"]:
             sys.stderr.write(f"ZCLI-PROFILE-001E Profile {name} not found, terminating rc = 12\n")
@@ -124,4 +133,8 @@ def get(ctx: click.Context, name: str):
         for profile in CONFIG["profiles"]:
             values: dict = get_profile_values(config=CONFIG, name=profile)
             sys.stdout.write(f"{json.dumps(values)}\n")
+
+    logging.debug("CMD-PROF-000D get() returned with:")
+    logging.debug(f"                         profile: {json.dumps(values)}")
+
     sys.exit(0)

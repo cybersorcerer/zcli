@@ -8,7 +8,7 @@ from commands.cmd_utils import (
 
 CONFIG_CACHE_DIR = ".config/zcli"
 
-JOBS_NOTIFICATION_SERVER = "http://mvsb.ruv.de:8176"
+JOBS_NOTIFICATION_SERVER = "http://localhost:8080"
 GLOBAL_CSI = "SMPE.GLOBAL.CSI"
 
 config_file_path: str = create_directory(CONFIG_CACHE_DIR)

@@ -20,8 +20,6 @@ def topology_cli() -> None:
     defined to z/OSMF
 
     \b
-    Module Name.:  commands.cmd_topology.py
-    Alias........: None
     Author.......: Ronny Funk
     Function.....: Query z/OS z/OSMF Toplogy Services
 
@@ -44,6 +42,9 @@ def groups(ctx: click.Context):
     instance.
     """
     verify = ctx.obj["VERIFY"]
+    logging = ctx.obj["LOGGING"]
+
+    logging.debug("CMD-TOPOLOGY-000D groups() entered with (None):")
 
     client = tp.TOPOLOGY(
         hostname=ctx.obj["HOST_NAME"],
@@ -53,15 +54,20 @@ def groups(ctx: click.Context):
         password=ctx.obj["PASSWORD"],
         cert_path=ctx.obj["CERT_PATH"],
     )
+
     errors, response = client.get_topology_service(service="groups", verify=verify)
+
+    logging.debug("CMD-TOPOLOGY-000D groups() returned with:")
+    logging.debug(f"                    response: {response}")
+    logging.debug(f"                      errors: {errors}")
+
     if errors:
         sys.stderr.write(f"{str(errors)}\n")
     else:
         sys.stdout.write(f"{response.text}\n")
 
-
 # ------------------------------------------------------------------------------#
-# Define the topology list sysplex command                                     #
+# Define the topology list sysplex command                                      #
 # ------------------------------------------------------------------------------#
 @topology_cli.command(name="sysplex", cls=HelpColorsCommand, help_options_color="blue")
 @click.pass_context
@@ -129,6 +135,7 @@ def list(ctx: click.Context):
     of the systems that are defined to a z/OSMF
     instance.
     """
+
     verify = ctx.obj["VERIFY"]
     logging = ctx.obj["LOGGING"]
 
@@ -141,6 +148,11 @@ def list(ctx: click.Context):
         cert_path=ctx.obj["CERT_PATH"],
     )
     errors, response = client.get_topology_service(service="systems", verify=verify)
+
+    logging.debug("CMD-TOPOLOGY-000D list() returned with:")
+    logging.debug(f"                    response: {response}")
+    logging.debug(f"                      errors: {errors}")
+
     if errors:
         sys.stderr.write(f"{str(errors)}\n")
     else:
@@ -152,7 +164,7 @@ def list(ctx: click.Context):
 # Define the topology list systems contained in a group                        #
 # ------------------------------------------------------------------------------#
 @systems_cli.command(name="in-group", cls=HelpColorsCommand, help_options_color="blue")
-@click.option("--name", "-n", type=str, required=True, help="The z/OSMF group name.")
+@click.option("--name", "-n", type=click.STRING, required=True, help="The z/OSMF group name.")
 @click.pass_context
 def systems_in_group(ctx: click.Context, name: str, verify: bool = True):
     """
@@ -181,7 +193,7 @@ def systems_in_group(ctx: click.Context, name: str, verify: bool = True):
 @systems_cli.command(
     name="in-sysplex", cls=HelpColorsCommand, help_options_color="blue"
 )
-@click.option("--name", "-n", type=str, required=True, help="The z/OS sysplex name.")
+@click.option("--name", "-n", type=click.STRING, required=True, help="The z/OS sysplex name.")
 @click.pass_context
 def systems_in_sysplex(ctx: click.Context, name: str, verify: bool = True):
     """
@@ -218,8 +230,6 @@ def validate_cli() -> None:
     """
     Validate Connection status of z/OS system(s)/plexes
     \b
-    Module Name.:  commands.cmd_topology.py
-    Alias........: None
     Author.......: Ronny Funk
     Function.....: Query z/OS z/OSMF Toplogy Services
 
@@ -230,7 +240,7 @@ def validate_cli() -> None:
 
 @validate_cli.command(name="system", cls=HelpColorsCommand, help_options_color="blue")
 @click.option(
-    "--name", "-n", type=str, default="", help="Name of z/OS system to validate."
+    "--name", "-n", type=click.STRING, default="", help="Name of z/OS system to validate."
 )
 @click.pass_context
 def system(ctx: click.Context, name: str, verify: bool = True):
@@ -244,7 +254,6 @@ def system(ctx: click.Context, name: str, verify: bool = True):
     """
 
     verify = ctx.obj["VERIFY"]
-    logging = ctx.obj["LOGGING"]
 
     client = tp.TOPOLOGY(
         hostname=ctx.obj["HOST_NAME"],
@@ -254,7 +263,9 @@ def system(ctx: click.Context, name: str, verify: bool = True):
         password=ctx.obj["PASSWORD"],
         cert_path=ctx.obj["CERT_PATH"],
     )
+
     errors, response = client.validate_system(system=name, verify=verify)
+
     if errors:
         sys.stderr.write(f"{str(errors)}\n")
     else:
@@ -273,7 +284,6 @@ def plex(ctx: click.Context, verify: bool = True):
     """
 
     verify = ctx.obj["VERIFY"]
-    logging = ctx.obj["LOGGING"]
 
     client = tp.TOPOLOGY(
         hostname=ctx.obj["HOST_NAME"],
@@ -283,7 +293,9 @@ def plex(ctx: click.Context, verify: bool = True):
         password=ctx.obj["PASSWORD"],
         cert_path=ctx.obj["CERT_PATH"],
     )
+
     errors, response = client.validate_plex(verify=verify)
+
     if errors:
         sys.stderr.write(f"{str(errors)}\n")
     else:

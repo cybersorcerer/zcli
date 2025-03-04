@@ -19,7 +19,6 @@ def datasets_cli() -> None:
     Interact with z/OS datasets.
 
     \b
-    Module Name..: commands.cmd_datasets.py
     Author.......: Ronny Funk
     Function.....: Work with z/OS Datasets
 

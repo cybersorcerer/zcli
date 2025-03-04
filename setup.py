@@ -1,7 +1,7 @@
 from setuptools import setup
 setup(
     name='zosapi',
-    version='0.0.1',
+    version='0.1.0a',
     description='Wrapper for the z/OSMF REST API',
     author='Ronny Funk',
     author_email='ronny@cybersorcerer.de',

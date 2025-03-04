@@ -9,7 +9,8 @@
                 "encoding": "IBM-1047",
                 "port": 443,
                 "user": "RACF USER-ID",
-                "password": "RACF PASSWORD"
+                "password": "RACF PASSWORD",
+                "home": "<RACF USER-ID z/Unix HOME>"
             }
         }
     },

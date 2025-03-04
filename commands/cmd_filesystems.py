@@ -18,7 +18,6 @@ def filesystems_cli() -> None:
     Interact with z/OS z/Unix filesystems.
 
     \b
-    Module Name..: commands.cmd_filesystems.py
     Author.......: Ronny Funk
     Function.....: Work with z/Unix filesystems
 
