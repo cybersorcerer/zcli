@@ -10,6 +10,7 @@
                 "port": 443,
                 "user": "RACF USER-ID",
                 "password": "RACF PASSWORD"
+                "home": <RACF USER-ID z/Unix HOME>
             }
         }
     },
