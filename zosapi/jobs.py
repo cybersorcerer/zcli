@@ -546,12 +546,13 @@ class JOBS(C.CLIENT):
 
         return JOBS.errors, response
 
-    def submit_job(self, file_name: str, jes_name: str = "", verify: bool = True):
+    def submit_job(self, file_name: str, jes_name: str = "", inline: bool = True, verify: bool = True):
         """_Submit job to z/OS_
 
         Args:
             file_name (str).........: _Name of the z/Unix file with z/OS JCL to submit_
             jes_name (str)..........: _Secondary JES name_. Defaults to ''.
+            inline (bool)...........: _Whether the JCL is inline or in a file_. Defaults to True.
             verify (bool)...........: _Turn certificate verification on/off_. Defaults to True (on).
 
         Returns:
@@ -574,7 +575,14 @@ class JOBS(C.CLIENT):
         if jes_name != "":
             url = url + f"-{jes_name}"
 
-        if file_name != "":
+        if inline:
+            self.headers["Content-Type"] = "text/plain"
+            with open(file_name, "r") as f:
+                data = f.read()
+            self.log.debug(f"JOBS-000D submit_job() read file {file_name}")
+            self.log.debug(f"            data: {data}")
+        else:
+            self.headers["Content-Type"] = "application/json"
             data = "{ " + '"file": ' + '"' + f"{file_name}" + '" }'
 
         self.headers["X-IBM-Notification-URL"] = "http://localhost:8080"

@@ -456,20 +456,33 @@ def jcl(ctx: click.Context, job_id: str, job_name: str, job_correlator: str):
     required=False,
     default="",
     help="Secondary JES subsystem name.",
-    type=str,
+    type=click.STRING,
 )
+@click.option(
+    "--inline/--no-inline",
+    required=False,
+    default=True,
+    help="Submit JCL inline.",
+    type=click.BOOL,
+)
+
 @click.pass_context
 def submit(
     ctx: click.Context,
     file_name: str,
     secondary_jes: str,
+    inline: bool,
 ):
     """
     Use this command to submit a job to run on z/OS.
 
     \b
     To submit z/OS JCL contained in a file use the zcli jobs command as follows:
-    ./zcli.py jobs submit --file-name <file_name>
+    ./zcli.py jobs submit --file-name <file_name> --no-inline
+    \b
+    Note: The --no-inline flag only works if zcli is running inside z/Unix!
+          otherwise the default --inline must be used. In ths case zcli will
+          read the file into memory and submit the JCL inline.
     \b
     If you want to submit the job to a secondary JES subsystem add the optional parameter:
     --secondary-jes <jes_name>
@@ -481,6 +494,7 @@ def submit(
 
     logging.debug("CMD-JOBS-000D job submit entered with:")
     logging.debug(f"                   file_name: {file_name}")
+    logging.debug(f"                       inline: {inline}")
     logging.debug(f"               secondary_jes: {secondary_jes}")
 
     client = j.JOBS(
