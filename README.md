@@ -87,7 +87,7 @@ cp <PATH_TO_ZCLI_DIR>/samples/zcli.json $HOME/.config/zcli.json
 ## How to use zcli.py
 
 ```bash
-./zcli.py --no-verify --help
+zcli --no-verify --help
 Usage: zcli.py [OPTIONS] COMMAND [ARGS]...
 
   Program Name.: z/OS CLI (zcli.py)
