@@ -2,7 +2,7 @@ import sys
 import click
 from click_help_colors import HelpColorsGroup, HelpColorsCommand
 from zosapi import files as f
-from commands.cmd_utils import process_response, fix_required
+from commands.cmd_utils import process_response 
 
 
 # ------------------------------------------------------------------------------#
