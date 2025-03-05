@@ -1,5 +1,6 @@
 import sys
 import json
+import json
 import click
 from click_help_colors import HelpColorsGroup, HelpColorsCommand
 from zosapi import tso as t
@@ -62,6 +63,13 @@ def command(ctx: click.Context, text: bool, command: str):
     errors, response = client.issue_tso_command(command, verify=verify)
     if errors:
         sys.stderr.write(f"{str(errors)}\n")
+    else:
+        if text:
+            response_dict = json.loads(response.text)
+            for line in response_dict["cmdResponse"]:
+                sys.stdout.write(f"{line["message"]}\n")
+        else:
+            sys.stdout.write(f"{response.text}\n")
     else:
         if text:
             response_dict = json.loads(response.text)
