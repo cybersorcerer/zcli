@@ -1,7 +1,13 @@
+.pytest_cache
 .venv
-grs.log
-__pycache__
 .vscode/settings.json
+commands/__pycache__
+tui/__pycache__
+tui/info/__pycache__
+tui/jobs/__pycache__
+tui/software/__pycache__
+tui/subsystems/__pycache__
+zosapi/__pycache__
+grs.log
 iefbr14.jcl
-main.py
 notification_server.py
