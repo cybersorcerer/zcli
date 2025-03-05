@@ -2,3 +2,6 @@
 grs.log
 __pycache__
 .vscode/settings.json
+iefbr14.jcl
+main.py
+notification_server.py
