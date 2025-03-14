@@ -585,7 +585,8 @@ class JOBS(C.CLIENT):
             self.headers["Content-Type"] = "application/json"
             data = "{ " + '"file": ' + '"' + f"{file_name}" + '" }'
 
-        self.headers["X-IBM-Notification-URL"] = "http://localhost:8080"
+        self.headers["X-IBM-Notification-URL"] = "https://192.168.9.39:4443"
+        self.headers["X-IBM-Notification-Options"] = '{ "events": ["active", "ready", "complete"] }'
 
         try:
             response = requests.put(url, headers=self.headers, data=data, verify=verify)

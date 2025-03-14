@@ -1,13 +1,13 @@
 {
     "git_dir":"${workspaceFolder}",
-    "zos_git_dir":"/u/svarfun/Documents/source/git/zosmf_client",
-    "zos_git_base":"/u/svarfun/Documents/source/git",
+    "zos_git_dir":"/u/svarfun/Documents/source/gitlab/zcli",
+    "zos_git_base":"/u/svarfun/Documents/source/zcli",
     "zos_build_dir":".build",
-    "zos_git_repo":"https://codehub.sva.de/zosmf_client",
+    "zos_git_repo":"https://codehub.sva.de/zcli",
     "zos_ssh_host":"192.168.9.39",
     "zos_ssh_port":"22",
     "zos_user_bin":"/u/svarfun/bin",
-    "make_dir":"/u/svarfun/Documents/source/git/zosmf_client",
+    "make_dir":"/u/svarfun/Documents/source/gitlab/zcli",
     "key_file": "/Users/Ronald.Funk/.ssh/id_rsa",
     "zowe.settings.version": 2,
     "workbench.colorCustomizations": {

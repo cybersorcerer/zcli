@@ -59,5 +59,6 @@ def command(ctx: click.Context, command: str):
     errors, response = client.issue_zos_command(command, verify=ctx.obj["VERIFY"])
     if errors:
         sys.stderr.write(f"{str(errors)}\n")
+        sys.stderr.write(f"{response.text}\n")
     else:
         sys.stdout.write(f"{response.text}\n")

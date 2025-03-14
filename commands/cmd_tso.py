@@ -70,10 +70,3 @@ def command(ctx: click.Context, text: bool, command: str):
                 sys.stdout.write(f"{line["message"]}\n")
         else:
             sys.stdout.write(f"{response.text}\n")
-    else:
-        if text:
-            response_dict = json.loads(response.text)
-            for line in response_dict["cmdResponse"]:
-                sys.stdout.write(f"{line["message"]}\n")
-        else:
-            sys.stdout.write(f"{response.text}\n")

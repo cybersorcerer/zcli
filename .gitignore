@@ -1,6 +1,6 @@
 .pytest_cache
 .venv
-.vscode/settings.json
+.vscode
 commands/__pycache__
 tui/__pycache__
 tui/info/__pycache__

@@ -208,7 +208,7 @@ class FILES(f.CLIENT):
             verify (bool): Verify certificats. Defaults to true
 
         Returns:
-            error: Dictionalry with return code and error messages if any.
+            error: Dictionary with return code and error messages if any.
             response: Command response or in case of an error empty list.
         """
 
