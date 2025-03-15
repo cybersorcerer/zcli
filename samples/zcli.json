@@ -43,7 +43,7 @@
                     "dataset_cache": ".local/zcli/.cache/datasets",
                     "jobs_cache": ".local/zcli/.cache/jobs",
                     "config_dir": ".config/zcli",
-                    "cert_path": "<path_to_cert_file>"
+                    "cert_path": "<path_to_cert>"
                 }
             }
         }
